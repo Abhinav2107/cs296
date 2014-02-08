@@ -24,6 +24,9 @@ OBJDIR = $(PROJECT_ROOT)/myobjs
 BINDIR = $(PROJECT_ROOT)/mybins
 DOCDIR = $(PROJECT_ROOT)/doc
 LIBDIR = $(PROJECT_ROOT)/mylibs
+DATADIR = $(PROJECT_ROOT)/data
+SCRIPTSDIR = $(PROJECT_ROOT)/scripts
+PLOTSDIR = $(PROJECT_ROOT)/plots
 
 # Library Paths
 BOX2D_ROOT=$(EXTERNAL_ROOT)
@@ -61,7 +64,7 @@ INCS := $(wildcard $(SRCDIR)/*.hpp)
 OBJS := $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 LIBOBJS := $(OBJS:$(OBJDIR)/main.o=)
 
-.PHONY: all setup doc clean distclean exe exelib
+.PHONY: all setup doc clean distclean exe exelib data plot
 
 all: setup
 
@@ -133,7 +136,7 @@ doc:
 
 clean:
 	@$(ECHO) -n "Cleaning up..."
-	@$(RM) -rf $(OBJDIR) *~ $(DEPS) $(SRCDIR)/*~ $(BINDIR) $(LIBDIR)
+	@$(RM) -rf $(OBJDIR) *~ $(DEPS) $(SRCDIR)/*~ $(BINDIR) $(LIBDIR) $(DATADIR) $(PLOTSDIR)
 	@$(ECHO) "Done"
 
 distclean: clean
@@ -148,3 +151,30 @@ report:
 	bibtex cs296_report_19; \
 	pdflatex cs296_report_19.tex; \
 	pdflatex cs296_report_19.tex;
+
+data:
+	@mkdir -p $(DATADIR)
+	@cd $(SCRIPTSDIR); \
+	./g19_gen_data.sh; \
+	./g19_gen_csv.sh; \
+	./g19_gen_data_csv.sh; \
+	./g19_gen_data_random.sh;
+
+plot:
+	@mkdir -p $(PLOTSDIR)
+	@cd $(SCRIPTSDIR); \
+	./g19_gen_plot_data.sh; \
+	./g19_gen_plot_data_random.sh; \
+	./g19_gen_plot_data_02.sh; \
+	sed -n '12751,12900p;12900q' ../$(DATADIR)/g19_lab05data_02.csv > ../$(DATADIR)/g19_lab05data_86.csv; \
+	./g19_plot01.gpt; \
+	mv g19_plot01.png ../$(PLOTSDIR)/ ;\
+	./g19_plot02.gpt; \
+	mv g19_plot02.png ../$(PLOTSDIR)/ ;\
+	./g19_plot03.gpt; \
+	mv g19_plot03.png ../$(PLOTSDIR)/ ;\
+	./g19_plot04.gpt; \
+	mv g19_plot04.png ../$(PLOTSDIR)/ ;\
+	./g19_plot05.gpt; \
+	mv g19_plot05.png ../$(PLOTSDIR)/ ;\
+

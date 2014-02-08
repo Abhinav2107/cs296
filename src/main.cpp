@@ -27,6 +27,7 @@
 #include "render.hpp"
 #include "cs296_base.hpp"
 #include "callbacks.hpp"
+#include "sys/time.h"
 
 //! GLUI is the library used for drawing the GUI
 //! Learn more about GLUI by reading the GLUI documentation
@@ -117,19 +118,31 @@ int main(int argc, char** argv)
   test_count = 1;
   test_index = 0;
   test_selection = test_index;
-  
-  int iterations = 150;
+  struct timeval start_time, end_time;
+  int iterations = atoi(argv[1]);
     entry = sim;
+    
     test = entry->create_fcn();
     b2Timer timer = b2Timer();
+    float32 stepsum = 0, velsum = 0, possum = 0, colsum = 0;
+    const b2Profile& profiler = test->get_m_world()->GetProfile();
+	gettimeofday(&start_time, NULL);
     for (int i = 0; i < iterations; i++) {
         test->step(&settings);
+        stepsum += profiler.step;
+        velsum += profiler.solveVelocity;
+        possum += profiler.solvePosition;
+        colsum += profiler.collide;
     }
-
-        float32 time = timer.GetMilliseconds();
-    printf("The average time for a %d iterations is: %lf ms\n", iterations,
-time / iterations);
-	printf("This is from the Box2D simulation for CS296 Lab 04. It has been made by Abhinav Gupta from Group 19\n");
+	gettimeofday(&end_time, NULL);
+	float32 loop_time = (end_time.tv_sec - start_time.tv_sec) * 1000.0f;
+	loop_time += (end_time.tv_usec - start_time.tv_usec) / 1000.0f;
+	printf("Numer of Iterations: %d\n", iterations);
+	printf("Average time per step is %lf ms\n", stepsum / iterations);
+	printf("Average time for collisions is %lf ms\n", colsum / iterations);
+	printf("Average time for velocity updates is %lf ms\n", velsum / iterations);
+	printf("Average time for position updates is %lf ms\n", possum / iterations);
+	printf("Total loop time is %lf ms\n", loop_time); 
 /*
   //! This initializes GLUT
   glutInit(&argc, argv);

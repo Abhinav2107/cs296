@@ -1,0 +1,7 @@
+#!/usr/bin/gnuplot
+DATADIR = "../data"
+set terminal png
+set output "g19_plot03.png"
+set datafile separator ','
+set key off
+plot DATADIR."/g19_lab05data_plot.csv" using 1:2:7:8 with yerrorbars, DATADIR."/g19_lab05data_plot.csv" using 1:2 with lines

@@ -149,7 +149,9 @@ namespace cs296
     void draw_title(int x, int y, const char *string);
     
     virtual void step(settings_t* settings);
-
+    b2World* get_m_world() {
+		return m_world;
+	}
     virtual void keyboard(unsigned char key) { B2_NOT_USED(key); }
     virtual void keyboard_up(unsigned char key) { B2_NOT_USED(key); }
 

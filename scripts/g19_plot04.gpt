@@ -1,0 +1,11 @@
+#!/usr/bin/gnuplot
+DATADIR = "../data"
+set terminal png
+set output "g19_plot04.png"
+set datafile separator ','
+set key off
+bin_width = 0.01
+bin_number(x) = floor(x/bin_width)
+rounded(x) = ( bin_number(x) + 0.5 )*bin_width
+set style fill solid 1.0 border -1
+plot DATADIR."/g19_lab05data_86.csv" using (rounded($3)):(1) smooth frequency with boxes
