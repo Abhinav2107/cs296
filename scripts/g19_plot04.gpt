@@ -1,11 +1,16 @@
 #!/usr/bin/gnuplot
 DATADIR = "../data"
 set terminal png
-set output "g19_plot04.png"
+set output "/dev/null"
 set datafile separator ','
-set key off
-bin_width = 0.01
+plot DATADIR."/g19_lab05data_86.csv" using 3:(1)
+set key r c
+set output "g19_plot04.png"
+set title "Plot 4 Using Iteration 86"
+set xlabel "Run Time"
+set ylabel "Frequency"
+bin_width = (GPVAL_X_MAX-GPVAL_X_MIN)/10
 bin_number(x) = floor(x/bin_width)
 rounded(x) = ( bin_number(x) + 0.5 )*bin_width
 set style fill solid 1.0 border -1
-plot DATADIR."/g19_lab05data_86.csv" using (rounded($3)):(1) smooth frequency with boxes
+plot DATADIR."/g19_lab05data_86.csv" using (rounded($3)):(1) smooth frequency with boxes title "Frequency of Run Times", DATADIR."/g19_lab05data_86.csv" using (rounded($3)):(1) smooth cumulative with lines title "Cumulative Frequency"

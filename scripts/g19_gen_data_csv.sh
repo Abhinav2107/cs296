@@ -1,7 +1,7 @@
 #!/bin/bash
 DATA_DIR=./../data/
 EXE=../mybins/cs296_19_exe
-rm  $DATA_DIR/g19_lab05data_02.csv
+rm -f $DATA_DIR/g19_lab05data_02.csv
 for i in {1..100}
 	do
 		for j in {1..150}

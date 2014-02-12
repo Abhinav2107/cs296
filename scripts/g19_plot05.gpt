@@ -3,11 +3,14 @@ DATADIR = "../data"
 set terminal png
 set output "g19_plot05.png"
 set datafile separator ','
-set key off
+set key 
+set title "Plot 5"
+set xlabel "Iteration Value"
+set ylabel "Average Run Time"
 f1(x) = a*x+b
 a=-1; b=0.5
 fit f1(x) DATADIR."/g19_lab05data_plot_random.csv" using 1:2 via a, b
 f2(x) = a1*x+b1
 a1=-1; b1=0.5
 fit f2(x) DATADIR."/g19_lab05data_plot_02.csv" using 1:2 via a1, b1
-plot DATADIR."/g19_lab05data_plot_random.csv" using 1:2, f1(x), DATADIR."/g19_lab05data_plot_02.csv" using 1:2, f2(x)
+plot DATADIR."/g19_lab05data_plot_random.csv" using 1:2 title "g19_lab05data_random.csv" lc rgb '#03AF54', f1(x) title "Regression for random step times" lc rgb '#03AF54', DATADIR."/g19_lab05data_plot_02.csv" using 1:2 title "g19_lab05data_02.csv" lc rgb '#FF5FD3', f2(x) title "Regression for all step times" lc rgb '#FF5FD3'

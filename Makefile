@@ -82,7 +82,7 @@ setup:
 	make install; \
 	fi;
 
-exe: $(OBJS)
+exe: setup $(OBJS)
 	@$(PRINTF) "$(MESG_COLOR)Building executable:$(NO_COLOR) $(FILE_COLOR) %16s$(NO_COLOR)" "$(notdir $@)"
 	$(CC) -o $(BINDIR)/$(TARGET) $(LDFLAGS) $(OBJS) $(LIBS) 2> temp.log || touch temp.err
 	@if test -e temp.err; \
@@ -136,7 +136,7 @@ doc:
 
 clean:
 	@$(ECHO) -n "Cleaning up..."
-	@$(RM) -rf $(OBJDIR) *~ $(DEPS) $(SRCDIR)/*~ $(BINDIR) $(LIBDIR) $(DATADIR) $(PLOTSDIR)
+	@$(RM) -rf $(OBJDIR) *~ $(DEPS) $(SRCDIR)/*~ $(BINDIR) $(LIBDIR) $(DATADIR) $(PLOTSDIR) $(SCRIPTSDIR)/*.log $(SCRIPTSDIR)/*~
 	@$(ECHO) "Done"
 
 distclean: clean
@@ -177,4 +177,5 @@ plot:
 	mv g19_plot04.png ../$(PLOTSDIR)/ ;\
 	./g19_plot05.gpt; \
 	mv g19_plot05.png ../$(PLOTSDIR)/ ;\
+	$(RM) -rf $(DATADIR)/*plot*.csv;
 
