@@ -9,5 +9,5 @@ then
 fi
 if [ $1 -eq 2 ]
 then
-	rename s/\.cpp/\.cpp\.bak/ *.cpp
+	ls *.cpp | xargs -I{} mv {} {}.bak
 fi
