@@ -136,7 +136,8 @@ doc:
 
 clean:
 	@$(ECHO) -n "Cleaning up..."
-	@$(RM) -rf $(OBJDIR) *~ $(DEPS) $(SRCDIR)/*~ $(BINDIR) $(LIBDIR) $(DATADIR) $(PLOTSDIR) $(SCRIPTSDIR)/*.log $(SCRIPTSDIR)/*~
+	@$(RM) -rf $(OBJDIR) *~ $(DEPS) $(SRCDIR)/*~ $(BINDIR) $(LIBDIR) $(PLOTSDIR) $(SCRIPTSDIR)/*.log $(SCRIPTSDIR)/*~
+	@cd $(DATADIR); ls | grep -v pnp_austen.txt | xargs rm -rf
 	@$(ECHO) "Done"
 
 distclean: clean

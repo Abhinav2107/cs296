@@ -28,25 +28,39 @@ remaining $stephan stephan
 echo Thank you for asking, $(id -u -n)
 
 echo -n "Your system has been running for "
-echo $(uptime) | awk '
-{
-	if ($3 ~ /:/) print $3;
-	
-	else
-	print $3" "$4" "$5;
-}' | sed 's/\(.*\),/\1 hours./'
 
-location=$(df /home | awk FNR==2'{print "The current disk on which your home folder is located is "$1" and is "$3*100/($3+$4)"% full"}')
+function up {
+        if [[ $3 == *:* ]] 
+        then
+        echo $3 | sed 's/\(.*\),/\1 hours./'
+        
+        elif [[ $4 == "min," ]]
+        then
+        echo $3 "minute(s)."
+        
+        else
+        echo $3" "$4" "$5 | sed 's/\(.*\),/\1 hours./'
+
+fi
+}
+
+up $(uptime)
+
+location=$(df /home | awk FNR==2'{print "The current disk on which your home folder
+is located is "$1" and is "$3*100/($3+$4)"% full"}')
 echo $location
 
-echo "You are running $(lsb_release -i | awk '{print $3}') and $(lsb_release -r | awk '{print $2}') with Kernel $(uname -r)"
+echo "You are running $(lsb_release -i | awk '{print $3}') and $(lsb_release -r |
+awk '{print $2}') with Kernel $(uname -r)"
 
 free | sed -n '2p' | awk '
 {
-	print "Your machine has "$2/1048576" GB RAM. Of which "($3/$2)*100"% is in use."
+        print "Your machine has "$2/1048576" GB RAM. Of which "($3/$2)*100"% is in use."
 }'
 
-words=$(wc -w scripts/myinfo.sh | awk '{print $1}')
-lines=$(wc -l scripts/myinfo.sh | awk '{print $1}')
-char=$(echo \($(wc -m scripts/myinfo.sh | awk '{print $1}') \- $(sed 's/[^	 ]//g' scripts/myinfo.sh | awk 'BEGIN{sum=0} {sum+=length} END{print sum}')\) | bc)
-echo This script has $words words, $lines lines and $char characters \(without counting whitespace\)
+words=$(wc -w ./scripts/myinfo.sh | awk '{print $1}')
+lines=$(wc -l ./scripts/myinfo.sh | awk '{print $1}')
+char=$(echo \($(wc -m ./scripts/myinfo.sh | awk '{print $1}') \- $(sed 's/[^ 	]//g' ./scripts/myinfo.sh
+| awk 'BEGIN{sum=0} {sum+=length} END{print sum}')\) | bc)
+echo This script has $words words, $lines lines and $char characters \(without
+counting whitespace\)
