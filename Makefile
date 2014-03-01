@@ -37,9 +37,9 @@ GL_ROOT=/usr/include/
 LIBS = -lBox2D -lglui -lglut -lGLU -lGL
 
 # Compiler and Linker flags
-CPPFLAGS =-g -O3 -Wall -fno-strict-aliasing
+CPPFLAGS =-g -m64 -pg -Wall -fno-strict-aliasing
 CPPFLAGS+=-I $(BOX2D_ROOT)/include -I $(GLUI_ROOT)/include
-LDFLAGS+=-L $(BOX2D_ROOT)/lib -L $(GLUI_ROOT)/lib
+LDFLAGS+= -L $(BOX2D_ROOT)/lib -L $(GLUI_ROOT)/lib
 
 ######################################
 SHARED_LIB = FALSE
@@ -64,10 +64,11 @@ INCS := $(wildcard $(SRCDIR)/*.hpp)
 OBJS := $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 LIBOBJS := $(OBJS:$(OBJDIR)/main.o=)
 
-.PHONY: all setup doc clean distclean exe exelib data plot
+.PHONY: all setup doc clean distclean exe exelib data plot debug_prof release_prof
 
 all: setup
 
+setup: CPPFLAGS+= -O3
 setup:
 	@mkdir -p $(OBJDIR)
 	@mkdir -p $(LIBDIR)
@@ -82,9 +83,48 @@ setup:
 	make install; \
 	fi;
 
+release_prof_setup: distclean
+	@mkdir -p $(OBJDIR)
+	@mkdir -p $(LIBDIR)
+	@mkdir -p $(BINDIR)
+	@if (! test -d $(EXTERNAL_ROOT)/include/Box2D) || (! test -e $(EXTERNAL_ROOT)/lib/libBox2D.a); then \
+	cd $(EXTERNAL_ROOT)/src; \
+	tar xzf Box2D.tgz; \
+	mkdir -p Box2D/build296; \
+	cd Box2D/build296; \
+	cmake -DCMAKE_BUILD_TYPE=Release ../; \
+	make; \
+	make install; \
+	fi;
+	
+release_prof: CPPFLAGS+= -O3
+release_prof: release_prof_setup $(OBJS) exe
+	@./$(BINDIR)/$(TARGET) 10000; \
+	gprof $(BINDIR)/$(TARGET) gmon.out > $(DATADIR)/g19_release_prof.dat; \
+	rm -f gmon.out
+	
+debug_prof_setup: distclean
+	@mkdir -p $(OBJDIR)
+	@mkdir -p $(LIBDIR)
+	@mkdir -p $(BINDIR)
+	@if (! test -d $(EXTERNAL_ROOT)/include/Box2D) || (! test -e $(EXTERNAL_ROOT)/lib/libBox2D.a); then \
+	cd $(EXTERNAL_ROOT)/src; \
+	tar xzf Box2D.tgz; \
+	mkdir -p Box2D/build296; \
+	cd Box2D/build296; \
+	cmake -DCMAKE_BUILD_TYPE=Debug ../; \
+	make; \
+	make install; \
+	fi;
+		
+debug_prof: debug_prof_setup $(OBJS) exe
+	@./$(BINDIR)/$(TARGET) 10000; \
+	gprof $(BINDIR)/$(TARGET) gmon.out > $(DATADIR)/g19_debug_prof.dat; \
+	rm -f gmon.out
+	
 exe: setup $(OBJS)
 	@$(PRINTF) "$(MESG_COLOR)Building executable:$(NO_COLOR) $(FILE_COLOR) %16s$(NO_COLOR)" "$(notdir $@)"
-	$(CC) -o $(BINDIR)/$(TARGET) $(LDFLAGS) $(OBJS) $(LIBS) 2> temp.log || touch temp.err
+	$(CC) -m64 -pg -o $(BINDIR)/$(TARGET) $(LDFLAGS) $(OBJS) $(LIBS) 2> temp.log || touch temp.err
 	@if test -e temp.err; \
 	then $(PRINTF) $(ERR_FMT) $(ERR_STRING) && $(CAT) temp.log; \
 	elif test -s temp.log; \
@@ -138,6 +178,8 @@ clean:
 	@$(ECHO) -n "Cleaning up..."
 	@$(RM) -rf $(OBJDIR) *~ $(DEPS) $(SRCDIR)/*~ $(BINDIR) $(LIBDIR) $(PLOTSDIR) $(SCRIPTSDIR)/*.log $(SCRIPTSDIR)/*~
 	@cd $(DATADIR); ls | grep -v pnp_austen.txt | xargs rm -rf
+	@cd $(DOCDIR); \
+	$(RM) *.aux *.log *.blg *.bbl *.out *.pdf
 	@$(ECHO) "Done"
 
 distclean: clean
@@ -151,7 +193,9 @@ report:
 	pdflatex cs296_report_19.tex; \
 	bibtex cs296_report_19; \
 	pdflatex cs296_report_19.tex; \
-	pdflatex cs296_report_19.tex;
+	pdflatex cs296_report_19.tex; \
+	pdflatex g19_prof_report.tex; \
+	pdflatex g19_prof_report.tex;
 
 data:
 	@mkdir -p $(DATADIR)
