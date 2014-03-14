@@ -177,9 +177,10 @@ doc:
 clean:
 	@$(ECHO) -n "Cleaning up..."
 	@$(RM) -rf $(OBJDIR) *~ $(DEPS) $(SRCDIR)/*~ $(BINDIR) $(LIBDIR) $(PLOTSDIR) $(SCRIPTSDIR)/*.log $(SCRIPTSDIR)/*~
-	@cd $(DATADIR); ls | grep -v pnp_austen.txt | xargs rm -rf
+	@cd $(DATADIR); ls | grep -v -e pnp_austen.txt -e action -e comedy -e drama -e fantasy -e horror -e romance -e sci-fi | xargs rm -f
 	@cd $(DOCDIR); \
-	$(RM) *.aux *.log *.blg *.bbl *.out *.pdf
+	$(RM) -f *.aux *.log *.blg *.bbl *.out *.pdf
+	@$(RM) -f gmon.out
 	@$(ECHO) "Done"
 
 distclean: clean
@@ -187,8 +188,11 @@ distclean: clean
 	@$(RM) -rf $(BOX2D_ROOT)/include/* $(BOX2D_ROOT)/lib/* $(BOX2D_ROOT)/src/Box2D
 	@$(ECHO) "Box2D Removed"
 
-report: 
-	@cd doc; \
+report: exe
+	python3 $(SCRIPTSDIR)/g19_gen_csv.py
+	python3 $(SCRIPTSDIR)/g19_gen_plots.py
+	python3 $(SCRIPTSDIR)/g19_gen_html.py 
+	cd doc; \
 	pdflatex cs296_report_19.tex; \
 	pdflatex cs296_report_19.tex; \
 	bibtex cs296_report_19; \
