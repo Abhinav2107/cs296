@@ -179,7 +179,7 @@ clean:
 	@$(RM) -rf $(OBJDIR) *~ $(DEPS) $(SRCDIR)/*~ $(BINDIR) $(LIBDIR) $(PLOTSDIR) $(SCRIPTSDIR)/*.log $(SCRIPTSDIR)/*~
 	@cd $(DATADIR); ls | grep -v -e pnp_austen.txt -e action -e comedy -e drama -e fantasy -e horror -e romance -e sci-fi | xargs rm -f
 	@cd $(DOCDIR); \
-	$(RM) -f *.aux *.log *.blg *.bbl *.out *.pdf
+	$(RM) -f *.aux *.log *.blg *.bbl *.out *.pdf *.html
 	@$(RM) -f gmon.out
 	@$(ECHO) "Done"
 
