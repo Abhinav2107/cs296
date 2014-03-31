@@ -130,7 +130,7 @@ int main(int argc, char** argv)
     printf("The average time for a %d iterations is: %lf ms\n", iterations,
 time / iterations);
 	printf("This is from the Box2D simulation for CS296 Lab 04. It has been made by Abhinav Gupta from Group 19\n");
-/*
+
   //! This initializes GLUT
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
@@ -156,7 +156,7 @@ time / iterations);
   create_glui_ui();
 
   //! Enter the infinite GLUT event loop
-  glutMainLoop();*/
+  glutMainLoop();
   
   return 0;
 }
