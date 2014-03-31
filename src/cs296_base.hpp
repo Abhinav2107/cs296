@@ -58,8 +58,8 @@ namespace cs296
     settings_t() :
       view_center(0.0f, 20.0f),
       hz(60.0f),
-      velocity_iterations(8),
-      position_iterations(3),
+      velocity_iterations(2000),
+      position_iterations(1000),
       draw_shapes(1),
       draw_joints(1),
       draw_AABBs(0),

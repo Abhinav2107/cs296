@@ -45,6 +45,11 @@ namespace cs296
   dominos_t::dominos_t()
   {
 	  
+	    enum _entityCategory {
+    EVERYTHING =          0x0001,
+    SPRING =     0x0002,
+  };
+	  
 	  //Ground
    /** The ground has an EdgeShape between co-ordinates (-90, 0) and (90, 0).
      * 
@@ -54,15 +59,16 @@ namespace cs296
       
       b2EdgeShape shape; 
       shape.Set(b2Vec2(-90.0f, 0.0f), b2Vec2(90.0f, 0.0f));
+      b2FixtureDef *fd = new b2FixtureDef;
+		 fd->shape = &shape;
+      fd->filter.categoryBits = SPRING;
+	  fd->filter.maskBits = EVERYTHING;
       b2BodyDef bd; 
       b1 = m_world->CreateBody(&bd); 
-      b1->CreateFixture(&shape, 0.0f);
+      b1->CreateFixture(fd);
     }
     
-	  enum _entityCategory {
-    EVERYTHING =          0x0001,
-    SPRING =     0x0002,
-  };
+	
 	  
 	//Striker Assembly
 	/** Firing pin, striker, nose
@@ -159,43 +165,49 @@ namespace cs296
 	{
 		 b2Vec2 vertices[4];
 		 vertices[0].Set(0,0);
-		 vertices[1].Set(0,-3);
-		 vertices[2].Set(-1,-3);
-		 vertices[3].Set( -3, 0);
+		 vertices[1].Set(0,-8);
+		 vertices[2].Set(-2,-8);
+		 vertices[3].Set( -6, 0);
 		 b2PolygonShape polygonShape;
 		 polygonShape.Set(vertices, 4);
-		 
+		 b2FixtureDef *fd = new b2FixtureDef;
+		 fd->shape = &polygonShape;
+		 fd->filter.categoryBits = SPRING;
+		 fd->filter.maskBits = EVERYTHING;
 		 b2BodyDef bd;
          bd.position.Set(10.0f, 8.0f);
          bd.type = b2_dynamicBody;
          bd.angularVelocity = 0.5f;
          trigger = m_world->CreateBody(&bd);
-         trigger->CreateFixture(&polygonShape, 0.0f);
+         trigger->CreateFixture(fd);
 	}
 	
 	b2RevoluteJointDef jointDef;
 	jointDef.bodyA= trigger;
 	jointDef.bodyB= b1;
-	jointDef.localAnchorA.Set(-2,-0.5);
-    jointDef.localAnchorB.Set(8,7.5);
+	jointDef.localAnchorA.Set(-4,-1);
+    jointDef.localAnchorB.Set(6,7);
 	(b2RevoluteJoint*)m_world->CreateJoint(&jointDef);
 	
 	b2Body* bar;
 	{
 		 b2PolygonShape shape;
 		 shape.SetAsBox(4.0f, 0.5f, b2Vec2(0,0),0.25f);
-		 
+		 b2FixtureDef *fd = new b2FixtureDef;
+		 fd->shape = &shape;
+		 fd->filter.categoryBits = SPRING;
+		 fd->filter.maskBits = EVERYTHING;
 		 b2BodyDef bd;
-         bd.position.Set(12.0f, 7.0f);
+         bd.position.Set(12.0f, 3.0f);
          bd.type = b2_dynamicBody;
          bd.angularVelocity = 0.5f;
          bar = m_world->CreateBody(&bd);
-         bar->CreateFixture(&shape, 0.0f);
+         bar->CreateFixture(fd);
 	}
 	
 	jointDef.bodyB= bar;
-	jointDef.localAnchorA.Set(-0.5,-2);
-	jointDef.localAnchorB.Set(-2.5,-1);
+	jointDef.localAnchorA.Set(-1,-6);
+	jointDef.localAnchorB.Set(-3,-1);
 	//(b2RevoluteJoint*)m_world->CreateJoint(&jointDef);
 	
 	b2Vec2* worldAxis = new b2Vec2(2, -1);
@@ -205,10 +217,10 @@ namespace cs296
 	//wheelJointDef.Initialize(trigger, bar, bar->GetWorldCenter(), *worldAxis);
 	wheelJointDef.bodyA = b1;
 	wheelJointDef.bodyB = bar;
-	wheelJointDef.localAxisA = b2Vec2(2,-1);
+	wheelJointDef.localAxisA = b2Vec2(0,1);
 	wheelJointDef.localAxisA.Normalize();
-	wheelJointDef.localAnchorA.Set(14.5,8);
-	wheelJointDef.localAnchorB.Set(2.5,1); 
+	wheelJointDef.localAnchorA.Set(16.5,5);
+	wheelJointDef.localAnchorB.Set(4.5,2); 
 	wheelJointDef.frequencyHz=0;
 	//wheelJointDef.dampingRatio=1000000;
 	//lineJointDef.lowerTranslation = -2.0;
