@@ -7,7 +7,7 @@
 //! These are user defined include files
 //! Included in double quotes - the path to find these has to be given at compile time
 #include "callbacks.hpp"
-
+#include "dominos.hpp"
 #ifndef __APPLE__
 #include "GL/glui.h"
 #else
@@ -255,7 +255,8 @@ namespace cs296
     settings.hz = settings_hz;
     
     test->step(&settings);
-    
+    dynamic_cast<dominos_t*>(test)->spacer_sleeve->ApplyForce(b2Vec2(1000 * (14.75 + dynamic_cast<dominos_t*>(test)->cap->GetPosition().x - dynamic_cast<dominos_t*>(test)->spacer_sleeve->GetPosition().x), 0), dynamic_cast<dominos_t*>(test)->spacer_sleeve->GetWorldCenter(), true);///spring between cap and spacer_sleeve
+	dynamic_cast<dominos_t*>(test)->cap->ApplyForce(b2Vec2(1000 * (-14.75 + dynamic_cast<dominos_t*>(test)->spacer_sleeve->GetPosition().x - dynamic_cast<dominos_t*>(test)->cap->GetPosition().x), 0), dynamic_cast<dominos_t*>(test)->cap->GetWorldCenter(), true);///spring between cap and spacer_sleeve
     if (old_center.x != settings.view_center.x || old_center.y != settings.view_center.y)
       {
 	resize_cb(width, height);

@@ -122,14 +122,14 @@ int main(int argc, char** argv)
     entry = sim;
     test = entry->create_fcn();
     b2Timer timer = b2Timer();
-    for (int i = 0; i < iterations; i++) {
-        test->step(&settings);
-    }
+    //for (int i = 0; i < iterations; i++) {
+        //test->step(&settings);
+    //}
 
-        float32 time = timer.GetMilliseconds();
-    printf("The average time for a %d iterations is: %lf ms\n", iterations,
-time / iterations);
-	printf("This is from the Box2D simulation for CS296 Lab 04. It has been made by Abhinav Gupta from Group 19\n");
+        //float32 time = timer.GetMilliseconds();
+    //printf("The average time for a %d iterations is: %lf ms\n", iterations,
+//time / iterations);
+	//printf("This is from the Box2D simulation for CS296 Lab 04. It has been made by Abhinav Gupta from Group 19\n");
 
   //! This initializes GLUT
   glutInit(&argc, argv);

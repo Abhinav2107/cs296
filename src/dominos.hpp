@@ -39,6 +39,9 @@ namespace cs296
     {
       return new dominos_t;
     }
+    
+    b2Body* cap;
+    b2Body* spacer_sleeve;
   };
 }
   
