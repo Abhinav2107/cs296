@@ -42,6 +42,8 @@ namespace cs296
     
     b2Body* cap;
     b2Body* spacer_sleeve;
+    b2Body* slide;
+    b2Body* fixed;
   };
 }
   

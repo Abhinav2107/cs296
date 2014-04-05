@@ -253,8 +253,10 @@ namespace cs296
     test->set_text_line(30);
     b2Vec2 old_center = settings.view_center;
     settings.hz = settings_hz;
-    
     test->step(&settings);
+    dynamic_cast<dominos_t*>(test)->slide->ApplyForce(b2Vec2(1000 * (-21.25 + dynamic_cast<dominos_t*>(test)->fixed->GetPosition().x - dynamic_cast<dominos_t*>(test)->slide->GetPosition().x), 0), dynamic_cast<dominos_t*>(test)->slide->GetWorldCenter(), true);///spring between fixed and slide
+	dynamic_cast<dominos_t*>(test)->fixed->ApplyForce(b2Vec2(1000 * (21.25 + dynamic_cast<dominos_t*>(test)->slide->GetPosition().x - dynamic_cast<dominos_t*>(test)->fixed->GetPosition().x), 0), dynamic_cast<dominos_t*>(test)->fixed->GetWorldCenter(), true);///spring between fixed and slide
+	
     dynamic_cast<dominos_t*>(test)->spacer_sleeve->ApplyForce(b2Vec2(1000 * (14.75 + dynamic_cast<dominos_t*>(test)->cap->GetPosition().x - dynamic_cast<dominos_t*>(test)->spacer_sleeve->GetPosition().x), 0), dynamic_cast<dominos_t*>(test)->spacer_sleeve->GetWorldCenter(), true);///spring between cap and spacer_sleeve
 	dynamic_cast<dominos_t*>(test)->cap->ApplyForce(b2Vec2(1000 * (-14.75 + dynamic_cast<dominos_t*>(test)->spacer_sleeve->GetPosition().x - dynamic_cast<dominos_t*>(test)->cap->GetPosition().x), 0), dynamic_cast<dominos_t*>(test)->cap->GetWorldCenter(), true);///spring between cap and spacer_sleeve
     if (old_center.x != settings.view_center.x || old_center.y != settings.view_center.y)

@@ -72,11 +72,11 @@ void create_glui_ui(void)
   glui->add_statictext("Simulation Timesteps"); 
   GLUI_Spinner* velocityIterationSpinner =
     glui->add_spinner("Velocity Iterations", GLUI_SPINNER_INT, &settings.velocity_iterations);
-  velocityIterationSpinner->set_int_limits(1, 500);
+  velocityIterationSpinner->set_int_limits(500, 500);
   
   GLUI_Spinner* positionIterationSpinner =
     glui->add_spinner("Position Iterations", GLUI_SPINNER_INT, &settings.position_iterations);
-  positionIterationSpinner->set_int_limits(0, 100);
+  positionIterationSpinner->set_int_limits(100, 100);
   
   GLUI_Spinner* hertzSpinner =
     glui->add_spinner("Sim steps per frame", GLUI_SPINNER_FLOAT, &settings_hz);

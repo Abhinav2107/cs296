@@ -143,6 +143,7 @@ namespace cs296
 		 fd->filter.categoryBits = SPRING;
 		 fd->filter.maskBits = EVERYTHING;
 		 b2BodyDef bd;
+		 bd.type = b2_dynamicBody;
          bd.position.Set(29.0f, 24.0f);
          spacer_sleeve=m_world->CreateBody(&bd);
          spacer_sleeve->CreateFixture(fd);
@@ -184,13 +185,17 @@ namespace cs296
 	
 	b2Body* trigger;
 	{
-		 b2Vec2 vertices[4];
-		 vertices[0].Set(0,0);
-		 vertices[1].Set(0,-8);
-		 vertices[2].Set(-2,-8);
-		 vertices[3].Set( -6, 0);
+		 //b2Vec2 vertices[4];
+		 //vertices[0].Set(0,0);
+		 //vertices[1].Set(0,-8);
+		 //vertices[2].Set(-2,-8);
+		 //vertices[3].Set( -6, 0);
+		 b2Vec2 vertices[3];
+		 vertices[0].Set(2,-5);
+		 vertices[1].Set(-2,-8);
+		 vertices[2].Set(-4,-1);
 		 b2PolygonShape polygonShape;
-		 polygonShape.Set(vertices, 4);
+		 polygonShape.Set(vertices, 3);
 		 b2FixtureDef *fd = new b2FixtureDef;
 		 fd->shape = &polygonShape;
 		 //fd->filter.categoryBits = SPRING;
@@ -267,10 +272,11 @@ namespace cs296
 		 fd->shape = &polygonShape;
 		 //fd->filter.categoryBits = SPRING;
 		 //fd->filter.maskBits = EVERYTHING;
-		 //fd->density = 10;
+		 fd->density = 10;
 		 b2BodyDef bd;
-         bd.position.Set(-26.0f, 17.25f);
+         bd.position.Set(-21.0f, 26.5f);
          bd.type = b2_dynamicBody;
+         //bd.linearVelocity=b2Vec2(10,0);
          barrel = m_world->CreateBody(&bd);
          barrel->CreateFixture(fd);
          polygonShape.SetAsBox(6,1,b2Vec2(20,0.5),0);
@@ -296,8 +302,8 @@ namespace cs296
          
          vertices[0].Set(18,-4.5);
 		 vertices[1].Set(20,-4.5);
-		 vertices[2].Set(21,-5.5);
-		 vertices[3].Set(19.5,-6);
+		 vertices[2].Set(20.75,-5.25);
+		 vertices[3].Set(18.75,-5.25);
 		 polygonShape.Set(vertices, 4);
 		 fd->shape = &polygonShape;
          barrel->CreateFixture(fd);
@@ -312,35 +318,35 @@ namespace cs296
 	}
 	
 	
-	b2Body* slide;
+	//b2Body* slide;
 	{
 		 b2PolygonShape polygonShape;
-		 polygonShape.SetAsBox(14,0.5);
+		 polygonShape.SetAsBox(13.75,0.5);
 		 b2FixtureDef *fd = new b2FixtureDef;
 		 fd->shape = &polygonShape;
 		 //fd->filter.categoryBits = SPRING;
 		 //fd->filter.maskBits = EVERYTHING;
-		 //fd->density = 10;
+		 fd->density = 100;
 		 b2BodyDef bd;
-         bd.position.Set(-26.0f, 18.25f);
+         bd.position.Set(-20.75f, 27.5f);
          bd.type = b2_dynamicBody;
+         //bd.linearVelocity=b2Vec2(10,0);
          slide = m_world->CreateBody(&bd);
          slide->CreateFixture(fd);
-         polygonShape.SetAsBox(6,1,b2Vec2(20,0.5),0);
-         fd->shape = &polygonShape;
-         //slide->CreateFixture(fd);
-    
-		 polygonShape.SetAsBox(0.5f, 1.0f,b2Vec2(-13.5,-8),0.0f);
+		 polygonShape.SetAsBox(0.5f, 1.0f,b2Vec2(-13.5,-9),0.0f);
 		 fd->shape = &polygonShape;
 		 //fd->filter.categoryBits = SPRING;
 		 //fd->filter.maskBits = EVERYTHING | SPRING;
          slide->CreateFixture(fd);
-         polygonShape.SetAsBox(0.25f, 1.5f, b2Vec2(-12.75,-8),0);
+         polygonShape.SetAsBox(0.25f, 1.5f, b2Vec2(-12.75,-9),0);
+         fd->shape = &polygonShape;
+         slide->CreateFixture(fd);
+         polygonShape.SetAsBox(4.625,1.5,b2Vec2(30.375,-1),0);
          fd->shape = &polygonShape;
          slide->CreateFixture(fd);
     }
     
-    b2Body* fixed;
+    //b2Body* fixed;
     {
 		b2Vec2 vertices[4];
 		 vertices[0].Set(0,0);
@@ -353,17 +359,32 @@ namespace cs296
 		 fd->shape = &polygonShape;
 		 //fd->filter.categoryBits = SPRING;
 		 //fd->filter.maskBits = EVERYTHING;
-		 //fd->density = 10;
+		 fd->density = 10;
 		 b2BodyDef bd;
-         bd.position.Set(-4.5,10.75);
-         bd.type = b2_dynamicBody;
+         bd.position.Set(0.5,20);
+         //bd.type = b2_dynamicBody;
          fixed = m_world->CreateBody(&bd);
          fixed->CreateFixture(fd); ///sliding_lock
          
-         polygonShape.SetAsBox(0.25f, 1.5f,b2Vec2(-4.75,-0.5),0); ///right_spring_holder
+         polygonShape.SetAsBox(0.25f, 1.5f,b2Vec2(-4.75,-1.5),0); ///right_spring_holder
          fd->shape = &polygonShape;
          fixed->CreateFixture(fd);
 	}
+	
+		  prismaticJointDef.bodyA = slide;
+		  prismaticJointDef.bodyB = fixed;
+		  prismaticJointDef.localAnchorA.Set(21.25,-7.5);
+		  //prismaticJointDef.collideConnected = false;
+		  //prismaticJointDef.enableLimit = true;
+		  //prismaticJointDef.upperTranslation = 201;
+		  prismaticJointDef.localAxisA.Set(1,0);
+		  (b2PrismaticJoint*)m_world->CreateJoint( &prismaticJointDef ); ///slide and fixed
+		  
+		  b2WeldJointDef weldJointDef;
+		  weldJointDef.bodyA = slide;
+		  weldJointDef.bodyB = spacer_sleeve;
+		  weldJointDef.localAnchorA.Set(49.75,-3.5);
+		  (b2WeldJoint*)m_world->CreateJoint( &weldJointDef ); ///slide and spacer_sleeve
     }
   
 
