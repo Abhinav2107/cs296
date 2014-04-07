@@ -21,7 +21,7 @@
  * Department of Computer Science and Engineering, IIT Bombay
  * Instructor: Parag Chaudhuri
  */
-
+#include <iostream>
 #include <math.h>
 #include "cs296_base.hpp"
 #include "render.hpp"
@@ -46,7 +46,8 @@ namespace cs296
    */
   dominos_t::dominos_t()
   {
-	  
+	  m_world->SetContactListener(&myContactListenerInstance);
+	  trig_reset = true;
 	    enum _entityCategory {
     EVERYTHING =          0x0001,
     SPRING =     0x0002,
@@ -77,7 +78,7 @@ namespace cs296
 	/** Firing pin, striker, nose
 	 * make a prismatic joint between striker and spring, striker and cap
 	 */
-	 b2Body* striker_assembly;
+	 //b2Body* striker_assembly;
 	 {
 		 b2PolygonShape shape;
 		 shape.SetAsBox(3.0f, 1.0f);
@@ -114,6 +115,7 @@ namespace cs296
          fd->shape = &shape;
          fd->restitution = 1;
          striker_assembly->CreateFixture(fd); ///nose
+         striker_assembly->SetUserData(new int(1));
       }  
       
      //b2Body* cap;
@@ -168,12 +170,12 @@ namespace cs296
 	  prismaticJointDef.lowerTranslation = -14.5; ///stop spring right before it reaches natural length
 	  (b2PrismaticJoint*)m_world->CreateJoint( &prismaticJointDef ); ///cap and spacer_sleeve
 	  
-	b2Body* bullet;
+	//b2Body* bullet;
 	{
 		b2PolygonShape shape;
 		 shape.SetAsBox(1.0f, 0.5f);
 		 b2BodyDef bd;
-         bd.position.Set(4.0f, 24.0f);
+         bd.position.Set(-4.5f, 24.0f);
          bd.type = b2_dynamicBody;
          bullet=m_world->CreateBody(&bd);
          b2FixtureDef *fd = new b2FixtureDef;
@@ -181,9 +183,31 @@ namespace cs296
          fd->restitution = 1;
          //fd->density = 1;
          bullet->CreateFixture(fd);
+         //bullet->SetUserData(new int(2));
 	}
 	
-	b2Body* trigger;
+	//b2Body* casing;
+	{
+		b2PolygonShape shape;
+		shape.SetAsBox(3.75,1.9);
+		b2BodyDef bd;
+        bd.position.Set(0.25f, 24.0f);
+        bd.type = b2_dynamicBody;
+        casing=m_world->CreateBody(&bd);
+		b2FixtureDef *fd = new b2FixtureDef;
+		fd->shape = &shape;
+		fd->density = 1;
+		casing->CreateFixture(fd);
+		shape.SetAsBox(0.25,1,b2Vec2(4.00,0),0);
+		fd->shape = &shape;
+		casing->CreateFixture(fd);
+		shape.SetAsBox(0.25,1.9,b2Vec2(4.5,0),0);
+		fd->shape = &shape;
+		casing->CreateFixture(fd);
+		casing->SetUserData(new int(2));
+	}
+	
+	//b2Body* trigger;
 	{
 		 //b2Vec2 vertices[4];
 		 //vertices[0].Set(0,0);
@@ -192,7 +216,7 @@ namespace cs296
 		 //vertices[3].Set( -6, 0);
 		 b2Vec2 vertices[3];
 		 vertices[0].Set(2,-5);
-		 vertices[1].Set(-2,-8);
+		 vertices[1].Set(-2,-11);
 		 vertices[2].Set(-4,-1);
 		 b2PolygonShape polygonShape;
 		 polygonShape.Set(vertices, 3);
@@ -214,9 +238,12 @@ namespace cs296
 	jointDef.bodyB= b1;
 	jointDef.localAnchorA.Set(-4,-1);
     jointDef.localAnchorB.Set(5,18.25);
+    jointDef.enableLimit = true;
+    jointDef.lowerAngle = -0.55;
+    //jointDef.upperAngle =  -100;
 	(b2RevoluteJoint*)m_world->CreateJoint(&jointDef);
 	
-	b2Body* bar;
+	//b2Body* bar;
 	{
 		 b2PolygonShape shape;
 		 shape.SetAsBox(12.0f, 0.75f, b2Vec2(0,0),0.25f);
@@ -264,7 +291,7 @@ namespace cs296
 	(b2WheelJoint*)m_world->CreateJoint(&wheelJointDef);
 	
 	
-	b2Body* barrel;
+	//b2Body* barrel;
 	{
 		 b2PolygonShape polygonShape;
 		 polygonShape.SetAsBox(14,0.5);
@@ -326,7 +353,7 @@ namespace cs296
 		 fd->shape = &polygonShape;
 		 //fd->filter.categoryBits = SPRING;
 		 //fd->filter.maskBits = EVERYTHING;
-		 fd->density = 100;
+		 fd->density = 1000;
 		 b2BodyDef bd;
          bd.position.Set(-20.75f, 27.5f);
          bd.type = b2_dynamicBody;
@@ -341,8 +368,14 @@ namespace cs296
          polygonShape.SetAsBox(0.25f, 1.5f, b2Vec2(-12.75,-9),0);
          fd->shape = &polygonShape;
          slide->CreateFixture(fd);
-         polygonShape.SetAsBox(4.625,1.5,b2Vec2(30.375,-1),0);
+         polygonShape.SetAsBox(4.525,1.5,b2Vec2(30.375,-1),0);
          fd->shape = &polygonShape;
+         slide->CreateFixture(fd);
+         polygonShape.SetAsBox(0.001,0.43,b2Vec2(-13.75,-7),0);
+         slide->CreateFixture(fd);
+         polygonShape.SetAsBox(0.25,0.25,b2Vec2(26.1,-2.75),0);
+         slide->CreateFixture(fd);
+         polygonShape.SetAsBox(0.25,0.25,b2Vec2(26.1,-4.75),0);
          slide->CreateFixture(fd);
     }
     
@@ -369,6 +402,15 @@ namespace cs296
          polygonShape.SetAsBox(0.25f, 1.5f,b2Vec2(-4.75,-1.5),0); ///right_spring_holder
          fd->shape = &polygonShape;
          fixed->CreateFixture(fd);
+         polygonShape.SetAsBox(1.0f, 0.001f,b2Vec2(20,1.8),0);
+         fd->shape = &polygonShape;
+         fd->restitution = 1;
+         fixed->CreateFixture(fd); ///
+         //polygonShape.SetAsBox(0.001f, 1.0f,b2Vec2(18,1.2),0);
+         //fd->shape = &polygonShape;
+         //fd->restitution = 1;
+         //fixed->CreateFixture(fd); ///
+         fixed->SetUserData(new int(3));
 	}
 	
 		  prismaticJointDef.bodyA = slide;
@@ -385,8 +427,49 @@ namespace cs296
 		  weldJointDef.bodyB = spacer_sleeve;
 		  weldJointDef.localAnchorA.Set(49.75,-3.5);
 		  (b2WeldJoint*)m_world->CreateJoint( &weldJointDef ); ///slide and spacer_sleeve
+		  
+		  
     }
   
 
   sim_t *sim = new sim_t("Dominos", dominos_t::create);
+  
+  void dominos_t::step(settings_t* settings) {
+	base_sim_t::step(settings);
+	if(coll) {
+		coll = false;
+		bullet->ApplyLinearImpulse(b2Vec2(-5000000,0),bullet->GetWorldCenter(),true);
+		casing->ApplyLinearImpulse(b2Vec2(3000,0),casing->GetWorldCenter(),true);
+		slide->ApplyLinearImpulse(b2Vec2(5000000,0),slide->GetWorldCenter(),true);
+	}
+	
+	else if(loll) {
+		loll = false;
+		casing->ApplyLinearImpulse(b2Vec2(0,10000),casing->GetWorldCenter(),true);
+	}
+	//cout<<striker_assembly->GetPosition().x - bar->GetPosition().x<<endl;
+	if((trig_reset) && (striker_assembly->GetPosition().x - bar->GetPosition().x > 7)) {
+		//cout<<"dude"<<endl;
+		trig_reset = false;
+		trigger->ApplyAngularImpulse(-15000,true);
+	}
+		
+	//slidex = slide->GetPosition().x;
+	//fixedx = fixed->GetPosition().x;
+	int slidev = slide->GetLinearVelocity().x;
+	
+	if(-21.25 + fixed->GetPosition().x - slide->GetPosition().x > 0.001) {
+		slide->SetLinearVelocity(b2Vec2(0,0));
+		slide->SetTransform(b2Vec2(-21.25 + fixed->GetPosition().x,slide->GetPosition().y),0);
+	}
+	slide->ApplyForce(b2Vec2(1000000 * (-21.25 + fixed->GetPosition().x - slide->GetPosition().x), 0), slide->GetWorldCenter(), true);///spring between fixed and slide
+	//fixed->ApplyForce(b2Vec2(1000000 * (21.25 + slide->GetPosition().x - fixed->GetPosition().x), 0), fixed->GetWorldCenter(), true);///spring between fixed and slide
+	
+    spacer_sleeve->ApplyForce(b2Vec2(1000 * (14.75 + cap->GetPosition().x - spacer_sleeve->GetPosition().x), 0), spacer_sleeve->GetWorldCenter(), true);///spring between cap and spacer_sleeve
+	cap->ApplyForce(b2Vec2(1000 * (-14.75 + spacer_sleeve->GetPosition().x - cap->GetPosition().x), 0), cap->GetWorldCenter(), true);///spring between cap and spacer_sleeve
+
 }
+
+  	
+}
+

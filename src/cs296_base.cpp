@@ -17,17 +17,21 @@
 */
 
 #include "cs296_base.hpp"
+//#include "dominos.hpp"
 #include <cstdio>
+#include <iostream>
 using namespace std;
 using namespace cs296;
-
-
+//contact_listener_t* myContactListenerInstanc = new contact_listener_t();
 base_sim_t::base_sim_t()
 {
 	b2Vec2 gravity;
 	gravity.Set(0.0f, 0.0f);
 	m_world = new b2World(gravity);
 
+
+//m_world->SetContactListener(myContactListenerInstanc);
+cout<<"hello"<<endl;
 	m_text_line = 30;
 
 	m_point_count = 0;
@@ -41,6 +45,7 @@ base_sim_t::base_sim_t()
 
 	memset(&m_max_profile, 0, sizeof(b2Profile));
 	memset(&m_total_profile, 0, sizeof(b2Profile));
+	
 }
 
 base_sim_t::~base_sim_t()
@@ -87,6 +92,7 @@ void base_sim_t::draw_title(int x, int y, const char *string)
 
 void base_sim_t::step(settings_t* settings)
 {
+	
   float32 time_step = settings->hz > 0.0f ? 1.0f / settings->hz : float32(0.0f);
 
   if (settings->pause)
@@ -117,6 +123,11 @@ void base_sim_t::step(settings_t* settings)
   m_world->SetSubStepping(settings->enable_sub_stepping > 0);
   
   m_point_count = 0;
+  
+  //if(coll) {
+	  //std::cout<<"killed"<<endl;
+	  //coll = false;
+  //}
   
   m_world->Step(time_step, settings->velocity_iterations, settings->position_iterations);
   

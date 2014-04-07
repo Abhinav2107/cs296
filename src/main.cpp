@@ -57,6 +57,8 @@ namespace cs296
   extern int32 width;
   extern int32 height;
   extern int32 main_window;
+  //bool coll = false;
+  //extern cs296::b2World* m_world;
 };
 
 //! This opens up the cs296 namespace
@@ -122,6 +124,8 @@ int main(int argc, char** argv)
     entry = sim;
     test = entry->create_fcn();
     b2Timer timer = b2Timer();
+    //contact_listener_t* myContactListenerInstance;
+	//m_world->SetContactListener(myContactListenerInstance); ///Contact Listener
     //for (int i = 0; i < iterations; i++) {
         //test->step(&settings);
     //}

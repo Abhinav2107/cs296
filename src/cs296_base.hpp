@@ -25,16 +25,19 @@
 
 #ifndef _CS296BASE_HPP_
 #define _CS296BASE_HPP_
-
+#include <iostream>
+using namespace std;
 #include "render.hpp"
 #include <Box2D/Box2D.h>
 #include <cstdlib>
 
 #define	RAND_LIMIT 32767
 
+
 namespace cs296
 {
-
+	//extern bool coll;
+	
   //! The base_sim_t class is the base simulation class.
   class base_sim_t;
   struct settings_t;
