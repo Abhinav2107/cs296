@@ -31,7 +31,6 @@ base_sim_t::base_sim_t()
 
 
 //m_world->SetContactListener(myContactListenerInstanc);
-cout<<"hello"<<endl;
 	m_text_line = 30;
 
 	m_point_count = 0;

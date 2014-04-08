@@ -32,43 +32,21 @@ namespace cs296 {
     bool loll = false;
     //bool trig_reset = true;
 
+    /**
+    *
+    */
+    // What is this for?
     class MyContactListener : public b2ContactListener {
     public:
-
-        void BeginContact(b2Contact* contact) {
-
-            //coll = true;
-            //check if fixture A was a ball
-            void* bodyUserDataA = contact->GetFixtureA()->GetBody()->GetUserData();
-            void* bodyUserDataB = contact->GetFixtureB()->GetBody()->GetUserData();
-            int* a = (int*) (bodyUserDataA);
-            int* b = (int*) (bodyUserDataB);
-            if ((a != NULL) && (b != NULL)) {
-                if (((*a == 1) && (*b == 2)) || ((*a == 2) && (*b == 1))) {
-                    coll = true;
-                    cout << "asdga" << endl;
-                }
-                else if (((*a == 3) && (*b == 2)) || ((*a == 2) && (*b == 3))) {
-                    loll = true;
-                }
-            }
-        }
+        void BeginContact(b2Contact* contact);
     };
 
-
-    //extern cs296::contact_listener_t;
-    //! This is the class that sets up the Box2D simulation world
-    //! Notice the public inheritance - why do we inherit the base_sim_t class?
-
+    /** This is the class that sets up the Box2D simulation world
+    * Contains all Elements in the world and...?
+	*/
     class dominos_t : public base_sim_t {
     public:
         MyContactListener myContactListenerInstance;
-        dominos_t();
-
-        static base_sim_t* create() {
-            return new dominos_t;
-        }
-
         b2Body* cap;
         b2Body* spacer_sleeve;
         b2Body* slide;
@@ -80,12 +58,62 @@ namespace cs296 {
         b2Body* bar;
         b2Body* trigger;
         bool trig_reset;
+        enum _entityCategory {
+            EVERYTHING = 0x0001,
+            SPRING = 0x0002,
+            NOCAP = 0x0003,
+            COMPRES = 0x0004,
+        };
+
+    	/**
+    	*
+    	*/
+    	dominos_t();
+
+	    /** Performs a single step in the simulation
+	    * Extends the standard step-Function by...?
+	    */
         void step(settings_t* settings);
+        
+    	/**
+    	*
+    	*/
+    	static base_sim_t* create() { return new dominos_t; }
+        
+    private:
+
+	    /** Creates the Ground of the Simulation
+	    * The ground has an EdgeShape between co-ordinates (-90, 0) and (90, 0).
+	     */
+    	b2Body* createGround();
+   	
+	    /** Creates the Barrel
+	    * The Barrel is basicly a pipe where the bullet flies trough when fired.
+	    */
+    	b2Body* createBarrel();
+    	b2Body* createBar();
+    	b2Body* createSlide();
+    	b2Body* createTrigger();
+    	b2Body* createCasing();
+    	b2Body* createBullet();
+		
+		/** Striker Assembly consisting of Firing pin, striker, nose
+		 * Make a prismatic joint between striker and spring, striker and cap
+		 */
+    	b2Body* createStrikerAssembly();
+    	b2Body* createFixed();
+    	b2Body* createCap();
+    	b2Body* createSpacerSleeve();
+
+    	void connectStrikerAssemblyWithSpacerSleeve(b2Body* striker_assembly, b2Body* spacer_sleeve);
+    	void connectStrikerAssemblyWithCap(b2Body* striker_assembly, b2Body* cap);
+    	void connectSpacerSleeveWithCap(b2Body* spacer_sleeve, b2Body* cap);
+    	void connectSlideWithFixed(b2Body* slide, b2Body* fixed);
+    	void connectTriggerWithGround(b2Body* trigger, b2Body* ground);
+    	void connectTriggerWithBar(b2Body* trigger, b2Body* bar);
+    	void connectGroundWithBar(b2Body* ground, b2Body* bar);
+    	void connectSlideWithSpacerSleeve(b2Body* slide, b2Body* spacer_sleeve);
     };
-
-
-
-
 }
 
 #endif
