@@ -118,7 +118,7 @@ namespace cs296 {
         vertices[3].Set(18.75, -5.25);
         polygonShape.Set(vertices, 4);
         fd->shape = &polygonShape;
-        barrel->CreateFixture(fd);
+        barrel->CreateFixture(fd); ///the hole where sliding_lock fits
 
         vertices[0].Set(20, -4.5);
         vertices[1].Set(24, -4.5);
@@ -155,7 +155,7 @@ namespace cs296 {
         vertices[4].Set(9, 5.5);
         shape.Set(vertices, 5);
         fd->shape = &shape;
-        bar->CreateFixture(fd);
+        bar->CreateFixture(fd); ///sear of the bar (cocks the striker)
 
         return bar;
     }
@@ -184,13 +184,13 @@ namespace cs296 {
 		slide->CreateFixture(fd);
 		polygonShape.SetAsBox(4.525, 1.5, b2Vec2(30.375, -1), 0);
 		fd->shape = &polygonShape;
-		slide->CreateFixture(fd);
+		slide->CreateFixture(fd); ///helps the barrel to slide back
 		polygonShape.SetAsBox(0.001, 0.43, b2Vec2(-13.75, -7), 0);
-		slide->CreateFixture(fd);
+		slide->CreateFixture(fd); ///small part which helps the barrel to slide back
 		polygonShape.SetAsBox(0.5, 0.25, b2Vec2(26.35, -2.75), 0);
-		slide->CreateFixture(fd);
+		slide->CreateFixture(fd); ///to narrow the striker chamber at the front
 		polygonShape.SetAsBox(0.5, 0.25, b2Vec2(26.35, -4.75), 0);
-		slide->CreateFixture(fd);
+		slide->CreateFixture(fd); ///to narrow the striker chamber at the front
 		b2Vec2 vertices[5];
 		vertices[0].Set(29.375 - 2.525, 1.5 - 6);
 		vertices[1].Set(29.375 - 2.525, -1.5 - 6);
@@ -202,10 +202,10 @@ namespace cs296 {
 		fd->filter.categoryBits = COMPRES;
 		fd->filter.maskBits = EVERYTHING | NOCAP | SPRING;
 		fd->density = 0;
-		slide->CreateFixture(fd);
+		slide->CreateFixture(fd); ///for pushing the new bullet in the mag, so that it springs up after some time (interface between magazine and other parts of the gun)
 		polygonShape.SetAsBox(5, 0.5, b2Vec2(36.875, -5.5), 0);
 		fd->shape = &polygonShape;
-		slide->CreateFixture(fd); ///for bringing up the new bullet
+		slide->CreateFixture(fd); ///same as above, keep new bullet down and then bring it up
 
 		return slide;
     }
@@ -344,7 +344,7 @@ namespace cs296 {
         fd->restitution = 1;
         fd->filter.categoryBits = COMPRES;
         fd->filter.maskBits = EVERYTHING | NOCAP | SPRING;
-        fixed->CreateFixture(fd); ///
+        fixed->CreateFixture(fd); ///casing_remover
         //polygonShape.SetAsBox(0.001f, 1.0f,b2Vec2(18,1.2),0);
         //fd->shape = &polygonShape;
         //fd->restitution = 1;
@@ -594,26 +594,26 @@ namespace cs296 {
             coll = false;
             bullet->ApplyLinearImpulse(b2Vec2(-5000000, 0), bullet->GetWorldCenter(), true);
             casing->ApplyLinearImpulse(b2Vec2(3000, 0), casing->GetWorldCenter(), true);
-            slide->ApplyLinearImpulse(b2Vec2(5000000, 0), slide->GetWorldCenter(), true);
+            slide->ApplyLinearImpulse(b2Vec2(5000000, 0), slide->GetWorldCenter(), true); ///provides impulses to the bullet, casing and slide when striker contacts casing
         }
         else if (loll) {
             loll = false;
-            casing->ApplyLinearImpulse(b2Vec2(0, 10000), casing->GetWorldCenter(), true);
+            casing->ApplyLinearImpulse(b2Vec2(0, 10000), casing->GetWorldCenter(), true); ///removes empty casing during recoil
         }
         //cout<<striker_assembly->GetPosition().x - bar->GetPosition().x<<endl;
         if ((trig_reset) && (striker_assembly->GetPosition().x - bar->GetPosition().x > 7)) {
             //cout<<"dude"<<endl;
             trig_reset = false;
-            trigger->ApplyAngularImpulse(-15000, true);
+            trigger->ApplyAngularImpulse(-15000, true); ///resets the position of trigger during recoil
         }
 
         //slidex = slide->GetPosition().x;
         //fixedx = fixed->GetPosition().x;
-        int slidev = slide->GetLinearVelocity().x;
+        //int slidev = slide->GetLinearVelocity().x;
 
         if (-21.25 + fixed->GetPosition().x - slide->GetPosition().x > 0.001) {
             slide->SetLinearVelocity(b2Vec2(0, 0));
-            slide->SetTransform(b2Vec2(-21.25 + fixed->GetPosition().x, slide->GetPosition().y), 0);
+            slide->SetTransform(b2Vec2(-21.25 + fixed->GetPosition().x, slide->GetPosition().y), 0); ///ensures that the spring between fixed and slide does not keep on oscillating
         }
         slide->ApplyForce(b2Vec2(1000000 * (-21.25 + fixed->GetPosition().x - slide->GetPosition().x), 0), slide->GetWorldCenter(), true); ///spring between fixed and slide
         //fixed->ApplyForce(b2Vec2(1000000 * (21.25 + slide->GetPosition().x - fixed->GetPosition().x), 0), fixed->GetWorldCenter(), true);///spring between fixed and slide
@@ -630,10 +630,10 @@ namespace cs296 {
         int* a = (int*) (bodyUserDataA);
         int* b = (int*) (bodyUserDataB);
 
-        if ((a != NULL) && (b != NULL)) {
+        if ((a != NULL) && (b != NULL)) { ///striker strikes casing
             if (((*a == 1) && (*b == 2)) || ((*a == 2) && (*b == 1))) {
                 coll = true;
-            } else if (((*a == 3) && (*b == 2)) || ((*a == 2) && (*b == 3))) {
+            } else if (((*a == 3) && (*b == 2)) || ((*a == 2) && (*b == 3))) { ///casing hits casing_remover
                 loll = true;
             }
         }
