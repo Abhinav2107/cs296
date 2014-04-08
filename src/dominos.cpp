@@ -53,11 +53,13 @@ namespace cs296 {
         b2Body* slide = dominos_t::createSlide();
         b2Body* trigger = dominos_t::createTrigger();
         b2Body* casing = dominos_t::createCasing();
-        b2Body* bullet = dominos_t::createBullet();
+        b2Body* bullet = dominos_t::createBullet(-4.5f, 24.0f);
         b2Body* striker_assembly = dominos_t::createStrikerAssembly();
         b2Body* fixed = dominos_t::createFixed();
-        b2Body* cap = dominos_t::createCap();
+        b2Body* cap = dominos_t::createCap(14.5f, 24.0f);
         b2Body* spacer_sleeve = dominos_t::createSpacerSleeve();
+
+        b2Body* magazine = dominos_t::createMagazine();
 
         // Creating all joints
         dominos_t::connectStrikerAssemblyWithSpacerSleeve(striker_assembly, spacer_sleeve);
@@ -71,6 +73,8 @@ namespace cs296 {
         dominos_t::connectGroundWithBar(ground, bar);
 
         dominos_t::connectSlideWithSpacerSleeve(slide, spacer_sleeve);
+
+//        dominos_t::connectMagazine(left, bottom, right);
     }
 
     b2Body* dominos_t::createBarrel() {	
@@ -255,11 +259,11 @@ namespace cs296 {
         return casing;
     }
 
-	b2Body* dominos_t::createBullet() {
+	b2Body* dominos_t::createBullet(float x, float y) {
         b2PolygonShape shape;
         shape.SetAsBox(1.0f, 0.5f);
         b2BodyDef bd;
-        bd.position.Set(-4.5f, 24.0f);
+        bd.position.Set(x, y);
         bd.type = b2_dynamicBody;
         bullet = m_world->CreateBody(&bd);
         b2FixtureDef *fd = new b2FixtureDef;
@@ -350,7 +354,7 @@ namespace cs296 {
         return fixed;
     }
 
-    b2Body* dominos_t::createCap() {
+    b2Body* dominos_t::createCap(float x, float y) {
         b2PolygonShape shape;
         shape.SetAsBox(0.25f, 1.5f);
         b2FixtureDef *fd = new b2FixtureDef;
@@ -359,7 +363,7 @@ namespace cs296 {
         fd->filter.maskBits = EVERYTHING | SPRING;
         b2BodyDef bd;
         bd.type = b2_dynamicBody;
-        bd.position.Set(14.5f, 24.0f);
+        bd.position.Set(x, y);
         cap = m_world->CreateBody(&bd);
         cap->CreateFixture(fd);
         shape.SetAsBox(0.5f, 1.0f, b2Vec2(0.75f, 0.0f), 0.0f);
@@ -376,10 +380,12 @@ namespace cs296 {
         fd->shape = &shape;
         fd->filter.categoryBits = SPRING;
         fd->filter.maskBits = EVERYTHING;
+
         b2BodyDef bd;
         bd.type = b2_dynamicBody;
         bd.position.Set(29.0f, 24.0f);
         spacer_sleeve = m_world->CreateBody(&bd);
+
         spacer_sleeve->CreateFixture(fd);
 
         return spacer_sleeve;
@@ -396,10 +402,72 @@ namespace cs296 {
 
         b2Body* ground;
         b2BodyDef bd;
+        bd.position.Set(0, 0);
         ground = m_world->CreateBody(&bd);
         ground->CreateFixture(fd);
 
         return ground;
+    }
+
+    b2Body* dominos_t::createCartridge(float x, float y) {
+        b2Body* cap = dominos_t::createCap(x, y);
+        b2Body* bullet = dominos_t::createBullet(x-19, y);
+        return bullet;
+    }
+
+    b2Body* dominos_t::createMagazine() {
+
+        float x = 40.0f;
+        float y = 20.0f;
+        float width = 10.0f;
+        float height = 15.0f;
+        float wallWdith = 0.5f;
+
+        //Left
+        b2BodyDef leftWallBody;
+        leftWallBody.type = b2_dynamicBody;
+        leftWallBody.position.Set(x, y);
+        b2Body* leftWall = m_world->CreateBody(&leftWallBody);
+
+        b2PolygonShape shapeLeftWall;
+        shapeLeftWall.SetAsBox(wallWdith*2, height);
+
+        b2FixtureDef leftWallFixture;
+        leftWallFixture.shape = &shapeLeftWall;
+        leftWallFixture.density = 1;
+        leftWall->CreateFixture(&leftWallFixture);
+
+        //Bottom
+        b2BodyDef bottomWallBody;
+        bottomWallBody.type = b2_dynamicBody;
+        bottomWallBody.position.Set(x+width/2, y-height-wallWdith);
+        b2Body* bottomWall = m_world->CreateBody(&bottomWallBody);
+
+        b2PolygonShape shapeBottomWall;
+        shapeBottomWall.SetAsBox(width-4*wallWdith, wallWdith);
+
+        b2FixtureDef bottomWallFixture;
+        bottomWallFixture.shape = &shapeBottomWall;
+        bottomWallFixture.density = 1;
+        bottomWall->CreateFixture(&bottomWallFixture);
+
+        //Right
+        b2BodyDef rightWallBody;
+        rightWallBody.type = b2_dynamicBody;
+        rightWallBody.position.Set(x+width, y);
+        b2Body* rightWall = m_world->CreateBody(&rightWallBody);
+
+        b2PolygonShape shapeRightWall;
+        shapeRightWall.SetAsBox(wallWdith*2, height);
+
+        b2FixtureDef rightWallFixture;
+        rightWallFixture.shape = &shapeRightWall;
+        rightWallFixture.density = 1;
+        rightWall->CreateFixture(&rightWallFixture);
+
+        dominos_t::createCartridge(x+3, y);
+
+        return magazine;
     }
 
 
@@ -512,6 +580,12 @@ namespace cs296 {
         weldJointDef.bodyB = spacer_sleeve;
         (b2WeldJoint*) m_world->CreateJoint(&weldJointDef); ///slide and spacer_sleeve
     }
+/*
+    void dominos_t::connectMagazine(b2Body* left, b2Body* bottom, b2Body* right) {
+        weldJointDef b2WeldJointDef = new b2WeldJointDef();
+        weldJointDef.Initialize(box1, box2, box1.GetWorldCenter());
+        _world->CreateJoint(weldJointDef);
+    }*/
 
 
     void dominos_t::step(settings_t* settings) {

@@ -57,6 +57,8 @@ namespace cs296 {
         b2Body* barrel;
         b2Body* bar;
         b2Body* trigger;
+        b2Body* magazine;
+
         bool trig_reset;
         enum _entityCategory {
             EVERYTHING = 0x0001,
@@ -95,15 +97,17 @@ namespace cs296 {
     	b2Body* createSlide();
     	b2Body* createTrigger();
     	b2Body* createCasing();
-    	b2Body* createBullet();
+    	b2Body* createBullet(float x, float y);
 		
 		/** Striker Assembly consisting of Firing pin, striker, nose
 		 * Make a prismatic joint between striker and spring, striker and cap
 		 */
     	b2Body* createStrikerAssembly();
     	b2Body* createFixed();
-    	b2Body* createCap();
+    	b2Body* createCap(float x, float y);
     	b2Body* createSpacerSleeve();
+    	b2Body* createMagazine();
+    	b2Body* createCartridge(float x, float y);
 
     	void connectStrikerAssemblyWithSpacerSleeve(b2Body* striker_assembly, b2Body* spacer_sleeve);
     	void connectStrikerAssemblyWithCap(b2Body* striker_assembly, b2Body* cap);
