@@ -58,13 +58,17 @@ namespace cs296 {
         b2Body* bar;
         b2Body* trigger;
         b2Body* magazine;
+        b2Body* follower;
 
         bool trig_reset;
         enum _entityCategory {
-            EVERYTHING = 0x0001,
-            SPRING = 0x0002,
-            NOCAP = 0x0003,
-            COMPRES = 0x0004,
+            EVERYTHING = 1,
+            STRIKER = 2,
+            BARREL = 4,
+            MAGAZINE = 8,
+            CARTRIDGE = 16,
+            FIREMECHANICS = 32,
+            TRIGGER = 64
         };
 
     	/**
@@ -96,7 +100,7 @@ namespace cs296 {
     	b2Body* createBar();
     	b2Body* createSlide();
     	b2Body* createTrigger();
-    	b2Body* createCasing();
+    	b2Body* createCasing(float x, float y);
     	b2Body* createBullet(float x, float y);
 		
 		/** Striker Assembly consisting of Firing pin, striker, nose
@@ -104,7 +108,7 @@ namespace cs296 {
 		 */
     	b2Body* createStrikerAssembly();
     	b2Body* createFixed();
-    	b2Body* createCap(float x, float y);
+    	b2Body* createCap();
     	b2Body* createSpacerSleeve();
     	b2Body* createMagazine();
     	b2Body* createCartridge(float x, float y);
@@ -117,6 +121,7 @@ namespace cs296 {
     	void connectTriggerWithBar(b2Body* trigger, b2Body* bar);
     	void connectGroundWithBar(b2Body* ground, b2Body* bar);
     	void connectSlideWithSpacerSleeve(b2Body* slide, b2Body* spacer_sleeve);
+    	void connectMagazine(b2Body* left, b2Body* bottom, b2Body* right);
     };
 }
 
