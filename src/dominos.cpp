@@ -52,6 +52,7 @@ namespace cs296
     EVERYTHING =          0x0001,
     SPRING =     0x0002,
     NOCAP = 0x0003,
+    COMPRES = 0x0004,
   };
 	  
 	  //Ground
@@ -91,11 +92,11 @@ namespace cs296
          
          
          b2Vec2 vertices[5];
-		 vertices[0].Set(-3,  -0.5);
-		 vertices[1].Set(-3,  0.5);
-		 vertices[2].Set( -4, 0.5);
-		 vertices[3].Set(-5,  0);
-		 vertices[4].Set( -4, -0.5);
+		 vertices[0].Set(-3,  -0.7);
+		 vertices[1].Set(-3,  0.3);
+		 vertices[2].Set( -4, 0.3);
+		 vertices[3].Set(-5,  -0.2);
+		 vertices[4].Set( -4, -0.7);
 		 b2PolygonShape polygonShape;
 		 polygonShape.Set(vertices, 5);
 		 striker_assembly->CreateFixture(&polygonShape, 0.0f); ///firing pin
@@ -373,10 +374,25 @@ namespace cs296
          slide->CreateFixture(fd);
          polygonShape.SetAsBox(0.001,0.43,b2Vec2(-13.75,-7),0);
          slide->CreateFixture(fd);
-         polygonShape.SetAsBox(0.25,0.25,b2Vec2(26.1,-2.75),0);
+         polygonShape.SetAsBox(0.5,0.25,b2Vec2(26.35,-2.75),0);
          slide->CreateFixture(fd);
-         polygonShape.SetAsBox(0.25,0.25,b2Vec2(26.1,-4.75),0);
+         polygonShape.SetAsBox(0.5,0.25,b2Vec2(26.35,-4.75),0);
          slide->CreateFixture(fd);
+         b2Vec2 vertices[5];
+         vertices[0].Set(29.375-2.525,1.5-6);
+		 vertices[1].Set(29.375-2.525,-1.5-6);
+		 vertices[2].Set(29.375-2.025,-1.5-6);
+		 vertices[3].Set(29.375+2.525,0-6);
+		 vertices[4].Set(29.375+2.525,1.5-6);
+         polygonShape.Set(vertices,5);
+         fd->shape = &polygonShape;
+         fd->filter.categoryBits = COMPRES;
+		 fd->filter.maskBits = EVERYTHING | NOCAP | SPRING;
+		 fd->density = 0;
+         slide->CreateFixture(fd);
+         polygonShape.SetAsBox(5,0.5,b2Vec2(36.875,-5.5),0);
+         fd->shape = &polygonShape;
+         slide->CreateFixture(fd); ///for bringing up the new bullet
     }
     
     //b2Body* fixed;
@@ -405,6 +421,8 @@ namespace cs296
          polygonShape.SetAsBox(1.0f, 0.001f,b2Vec2(20,1.8),0);
          fd->shape = &polygonShape;
          fd->restitution = 1;
+         fd->filter.categoryBits = COMPRES;
+		 fd->filter.maskBits = EVERYTHING | NOCAP | SPRING;
          fixed->CreateFixture(fd); ///
          //polygonShape.SetAsBox(0.001f, 1.0f,b2Vec2(18,1.2),0);
          //fd->shape = &polygonShape;
