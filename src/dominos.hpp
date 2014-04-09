@@ -59,11 +59,15 @@ namespace cs296 {
         b2Body* trigger;
         b2Body* magazine;
         b2Body* follower;
-
+        b2Body* new_bullet[7];
+        b2Body* new_casing[7];
+        
         bool trig_reset;
         enum _entityCategory {
-            EVERYTHING = 1,
-            STRIKER = 2,
+            EVERYTHING = 0x0001,
+            SPRING = 0x0002,
+            NOCAP = 0x0003,
+            COMPRES = 0x0004,
             BARREL = 4,
             MAGAZINE = 8,
             CARTRIDGE = 16,
@@ -100,8 +104,8 @@ namespace cs296 {
     	b2Body* createBar();
     	b2Body* createSlide();
     	b2Body* createTrigger();
-    	b2Body* createCasing(float x, float y);
-    	b2Body* createBullet(float x, float y);
+    	b2Body* createCasing(float x = 0.25, float y = 34, int i = 0);
+    	b2Body* createBullet(float x = -4.5, float y = 34, int i = 0);
 		
 		/** Striker Assembly consisting of Firing pin, striker, nose
 		 * Make a prismatic joint between striker and spring, striker and cap
@@ -111,7 +115,7 @@ namespace cs296 {
     	b2Body* createCap();
     	b2Body* createSpacerSleeve();
     	b2Body* createMagazine();
-    	b2Body* createCartridge(float x, float y);
+    	b2Body* createCartridge(float x, float y, int i);
 
     	void connectStrikerAssemblyWithSpacerSleeve(b2Body* striker_assembly, b2Body* spacer_sleeve);
     	void connectStrikerAssemblyWithCap(b2Body* striker_assembly, b2Body* cap);

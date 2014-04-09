@@ -52,13 +52,12 @@ namespace cs296 {
         b2Body* bar = dominos_t::createBar();
         b2Body* slide = dominos_t::createSlide();
         b2Body* trigger = dominos_t::createTrigger();
-        casing = dominos_t::createCasing(0.25f, 44.0f);
-        bullet = dominos_t::createBullet(-4.5f, 44.0f);
+        casing = dominos_t::createCasing();
+        bullet = dominos_t::createBullet();
         b2Body* striker_assembly = dominos_t::createStrikerAssembly();
         b2Body* fixed = dominos_t::createFixed();
         b2Body* cap = dominos_t::createCap();
         b2Body* spacer_sleeve = dominos_t::createSpacerSleeve();
-
         b2Body* magazine = dominos_t::createMagazine();
 
         // Creating all joints
@@ -80,11 +79,11 @@ namespace cs296 {
         polygonShape.SetAsBox(14, 0.5);
         b2FixtureDef *fd = new b2FixtureDef;
         fd->shape = &polygonShape;
-        fd->filter.categoryBits = BARREL;
-        fd->filter.maskBits = STRIKER | CARTRIDGE | BARREL;
+        //fd->filter.categoryBits = SPRING;
+        //fd->filter.maskBits = EVERYTHING;
         fd->density = 10;
         b2BodyDef bd;
-        bd.position.Set(-21.0f, 46.5f);
+        bd.position.Set(-21.0f, 36.5f);
         bd.type = b2_dynamicBody;
         //bd.linearVelocity=b2Vec2(10,0);
         barrel = m_world->CreateBody(&bd);
@@ -134,11 +133,11 @@ namespace cs296 {
         shape.SetAsBox(12.0f, 0.75f, b2Vec2(0, 0), 0.25f);
         b2FixtureDef *fd = new b2FixtureDef;
         fd->shape = &shape;
+        fd->filter.categoryBits = SPRING;									///
+        //fd->filter.maskBits = EVERYTHING;
         fd->density = 10;
-        fd->filter.categoryBits = TRIGGER;
-        fd->filter.maskBits = STRIKER;
         b2BodyDef bd;
-        bd.position.Set(18.75f, 36.25f);
+        bd.position.Set(18.75f, 26.25f);
         bd.type = b2_dynamicBody;
         //bd.angularVelocity = 0.5f;
         bar = m_world->CreateBody(&bd);
@@ -167,7 +166,7 @@ namespace cs296 {
 		//fd->filter.maskBits = EVERYTHING;
 		fd->density = 1000;
 		b2BodyDef bd;
-		bd.position.Set(-20.75f, 47.5f);
+		bd.position.Set(-20.75f, 37.5f);
 		bd.type = b2_dynamicBody;
 		//bd.linearVelocity=b2Vec2(10,0);
 		slide = m_world->CreateBody(&bd);
@@ -197,8 +196,8 @@ namespace cs296 {
 		vertices[4].Set(29.375 + 2.525, 1.5 - 6);
 		polygonShape.Set(vertices, 5);
 		fd->shape = &polygonShape;
-		fd->filter.categoryBits = TRIGGER;
-		fd->filter.maskBits = EVERYTHING;
+		fd->filter.categoryBits = COMPRES;
+		fd->filter.maskBits = EVERYTHING | NOCAP | SPRING | CARTRIDGE;
 		fd->density = 0;
 		slide->CreateFixture(fd); ///for pushing the new bullet in the mag, so that it springs up after some time (interface between magazine and other parts of the gun)
 		polygonShape.SetAsBox(5, 0.5, b2Vec2(36.875, -5.5), 0);
@@ -222,11 +221,11 @@ namespace cs296 {
 	    polygonShape.Set(vertices, 3);
 	    b2FixtureDef *fd = new b2FixtureDef;
 	    fd->shape = &polygonShape;
+	    fd->filter.categoryBits = SPRING;
+	    //fd->filter.maskBits = EVERYTHING;
 	    fd->density = 10;
-        fd->filter.categoryBits = TRIGGER;
-        fd->filter.maskBits = STRIKER;
 	    b2BodyDef bd;
-	    bd.position.Set(9.0f, 39.25f);
+	    bd.position.Set(9.0f, 29.25f);
 	    bd.type = b2_dynamicBody;
 	    bd.angularVelocity = 5.0f;
 	    trigger = m_world->CreateBody(&bd);
@@ -235,47 +234,56 @@ namespace cs296 {
 	    return trigger;
     }
 
-    b2Body* dominos_t::createCasing(float x, float y) {
+    b2Body* dominos_t::createCasing(float x, float y, int i) {
         b2PolygonShape shape;
         shape.SetAsBox(3.75, 1.9);
         b2BodyDef bd;
         bd.position.Set(x, y);
         bd.type = b2_dynamicBody;
-        b2Body* aCasing = m_world->CreateBody(&bd);
+        new_casing[i] = m_world->CreateBody(&bd);
         b2FixtureDef *fd = new b2FixtureDef;
+        fd->filter.categoryBits = CARTRIDGE;
+        fd->filter.maskBits = EVERYTHING | CARTRIDGE | MAGAZINE | COMPRES;
         fd->shape = &shape;
-        fd->density = .1;
-        aCasing->CreateFixture(fd);
+        fd->density = 1;
+        new_casing[i]->CreateFixture(fd);
         shape.SetAsBox(0.25, 1, b2Vec2(4.00, 0), 0);
         fd->shape = &shape;
-        aCasing->CreateFixture(fd);
+        new_casing[i]->CreateFixture(fd);
         shape.SetAsBox(0.25, 1.9, b2Vec2(4.5, 0), 0);
         fd->shape = &shape;
-        aCasing->CreateFixture(fd);
-        aCasing->SetUserData(new int(2));
-        fd->filter.categoryBits = CARTRIDGE;
-        fd->filter.maskBits = MAGAZINE | STRIKER | BARREL | CARTRIDGE;
+        new_casing[i]->CreateFixture(fd);
+        new_casing[i]->SetUserData(new int(i));
 
-        return aCasing;
+        return new_casing[i];
     }
 
-	b2Body* dominos_t::createBullet(float x, float y) {
-        b2PolygonShape shape;
-        shape.SetAsBox(1.0f, 0.5f);
+	b2Body* dominos_t::createBullet(float x, float y, int i) {
+        //b2PolygonShape shape;
+        //shape.SetAsBox(1.0f, 0.5f);
+        b2Vec2 vertices[6];
+	    vertices[0].Set(1,1.9);
+	    vertices[1].Set(0.5, 1.5);
+	    vertices[2].Set(0, 0.5);
+	    vertices[3].Set(0,-0.5);
+	    vertices[4].Set(0.5, -1.5);
+	    vertices[5].Set(1, -1.9);
+	    b2PolygonShape shape;
+	    shape.Set(vertices, 6);
         b2BodyDef bd;
         bd.position.Set(x, y);
         bd.type = b2_dynamicBody;
-        b2Body* aBullet = m_world->CreateBody(&bd);
+        new_bullet[i] = m_world->CreateBody(&bd);
         b2FixtureDef *fd = new b2FixtureDef;
         fd->shape = &shape;
         fd->restitution = 1;
-        fd->density = 1;
-        aBullet->CreateFixture(fd);
-        //bullet->SetUserData(new int(2));
         fd->filter.categoryBits = CARTRIDGE;
-        fd->filter.maskBits = MAGAZINE | STRIKER | BARREL | CARTRIDGE;
-        
-        return aBullet;
+        fd->filter.maskBits = EVERYTHING | CARTRIDGE | MAGAZINE | COMPRES;
+        //fd->density = 1;
+        new_bullet[i]->CreateFixture(fd);
+        //new_bullet[i]->SetUserData(new int(i));
+		
+        return new_bullet[i];
     }
 
     b2Body* dominos_t::createStrikerAssembly() {
@@ -283,10 +291,11 @@ namespace cs296 {
         shape.SetAsBox(3.0f, 1.0f);
 
         b2BodyDef bd;
-        bd.position.Set(11.0f, 44.0f);
+        bd.position.Set(11.0f, 34.0f);
         bd.type = b2_dynamicBody;
         striker_assembly = m_world->CreateBody(&bd);
         striker_assembly->CreateFixture(&shape, 0.0f);
+
 
         b2Vec2 vertices[5];
         vertices[0].Set(-3, -0.7);
@@ -301,17 +310,17 @@ namespace cs296 {
         shape.SetAsBox(2.0f, 0.5f, b2Vec2(5.0f, 0.0f), 0.0f);
         b2FixtureDef *fd = new b2FixtureDef;
         fd->shape = &shape;
-        fd->filter.categoryBits = STRIKER;
-        fd->filter.maskBits = CARTRIDGE | MAGAZINE | TRIGGER;
+        fd->filter.categoryBits = NOCAP;
+        fd->filter.maskBits = EVERYTHING;
         striker_assembly->CreateFixture(fd);
         shape.SetAsBox(6.0f, 1.0f, b2Vec2(13.0f, 0.0f), 0.0f);
         fd->shape = &shape;
-        fd->filter.categoryBits = STRIKER;
-        fd->filter.maskBits = STRIKER | CARTRIDGE | TRIGGER | BARREL;
+        fd->filter.categoryBits = SPRING;
+        fd->filter.maskBits = EVERYTHING | SPRING;
         striker_assembly->CreateFixture(fd); ///striker
         shape.SetAsBox(0.5f, 1.0f, b2Vec2(18.5f, -2.0f), 0.0f);
         fd->shape = &shape;
-        fd->restitution = 1;
+        //fd->restitution = 1;
         striker_assembly->CreateFixture(fd); ///nose
         striker_assembly->SetUserData(new int(1));
 
@@ -332,7 +341,7 @@ namespace cs296 {
         //fd->filter.maskBits = EVERYTHING;
         fd->density = 10;
         b2BodyDef bd;
-        bd.position.Set(0.5, 40);
+        bd.position.Set(0.5, 30);
         //bd.type = b2_dynamicBody;
         fixed = m_world->CreateBody(&bd);
         fixed->CreateFixture(fd); ///sliding_lock
@@ -343,8 +352,8 @@ namespace cs296 {
         polygonShape.SetAsBox(1.0f, 0.001f, b2Vec2(20, 1.8), 0);
         fd->shape = &polygonShape;
         fd->restitution = 1;
-        fd->filter.categoryBits = BARREL;
-        fd->filter.maskBits = EVERYTHING | BARREL | TRIGGER | STRIKER;
+        fd->filter.categoryBits = COMPRES;
+        fd->filter.maskBits = EVERYTHING | NOCAP | SPRING | CARTRIDGE;
         fixed->CreateFixture(fd); ///casing_remover
         //polygonShape.SetAsBox(0.001f, 1.0f,b2Vec2(18,1.2),0);
         //fd->shape = &polygonShape;
@@ -360,11 +369,11 @@ namespace cs296 {
         shape.SetAsBox(0.25f, 1.5f);
         b2FixtureDef *fd = new b2FixtureDef;
         fd->shape = &shape;
-        fd->filter.categoryBits = BARREL;
-        fd->filter.maskBits = EVERYTHING | BARREL | STRIKER;
+        fd->filter.categoryBits = SPRING;
+        fd->filter.maskBits = EVERYTHING | SPRING;
         b2BodyDef bd;
         bd.type = b2_dynamicBody;
-        bd.position.Set(14.5f, 44.0f);
+        bd.position.Set(14.5f, 34.0f);
         cap = m_world->CreateBody(&bd);
         cap->CreateFixture(fd);
         shape.SetAsBox(0.5f, 1.0f, b2Vec2(0.75f, 0.0f), 0.0f);
@@ -379,14 +388,12 @@ namespace cs296 {
         shape.SetAsBox(6.0f, 1.5f);
         b2FixtureDef *fd = new b2FixtureDef;
         fd->shape = &shape;
-        fd->filter.categoryBits = STRIKER;
-        fd->filter.maskBits = STRIKER | BARREL | CARTRIDGE | TRIGGER;
-
+        fd->filter.categoryBits = SPRING;
+        fd->filter.maskBits = EVERYTHING;
         b2BodyDef bd;
         bd.type = b2_dynamicBody;
-        bd.position.Set(29.0f, 44.0f);
+        bd.position.Set(29.0f, 34.0f);
         spacer_sleeve = m_world->CreateBody(&bd);
-
         spacer_sleeve->CreateFixture(fd);
 
         return spacer_sleeve;
@@ -398,24 +405,30 @@ namespace cs296 {
 
         b2FixtureDef *fd = new b2FixtureDef;
         fd->shape = &shape;
-        fd->filter.categoryBits = EVERYTHING;
+        fd->filter.categoryBits = SPRING;
         fd->filter.maskBits = EVERYTHING;
 
         b2Body* ground;
         b2BodyDef bd;
-        bd.position.Set(0, 0);
         ground = m_world->CreateBody(&bd);
         ground->CreateFixture(fd);
 
         return ground;
     }
-
-    b2Body* dominos_t::createCartridge(float x, float y) {
-        b2Body* casing = dominos_t::createCasing(x, y);
-      //  b2Body* bullet = dominos_t::createBullet(x-4.75, y);
-        return casing;
+    
+    b2Body* dominos_t::createCartridge(float x, float y, int i) {
+        new_casing[i] = dominos_t::createCasing(x+1.3f, y, i);
+        new_bullet[i] = dominos_t::createBullet(x-3.5f, y, i);
+        
+        b2WeldJointDef jointDef;
+		jointDef.bodyA = new_casing[i];
+		jointDef.bodyB = new_bullet[i];
+		jointDef.localAnchorA.Set(-4.8,0);
+		(b2WeldJoint*)m_world->CreateJoint(&jointDef);
+		
+        return new_casing[i];
     }
-
+    
     b2Body* dominos_t::createMagazine() {
 
         float x = 8.0f;
@@ -426,18 +439,20 @@ namespace cs296 {
 
 
         b2PolygonShape magazineShape;
-        magazineShape.SetAsBox(wallWidth, height-4);
+        magazineShape.SetAsBox(wallWidth, height-1, b2Vec2(1,-1),0);
 
         b2BodyDef bd;
-        bd.position.Set(x, y);
+        bd.position.Set(x, y-10.0f);
         bd.type = b2_dynamicBody;
         magazine = m_world->CreateBody(&bd);
 
         b2FixtureDef *fd = new b2FixtureDef;
+        fd->filter.categoryBits = MAGAZINE;
+        fd->filter.maskBits = EVERYTHING | CARTRIDGE;
         fd->shape = &magazineShape;
         fd->density = 100;
         magazine->CreateFixture(fd);
-        magazineShape.SetAsBox(wallWidth, height, b2Vec2(width, 0), 0);
+        magazineShape.SetAsBox(wallWidth, height+0.5f, b2Vec2(width+1.2, 0.5), 0);
         fd->shape = &magazineShape;
         magazine->CreateFixture(fd);
 
@@ -445,13 +460,11 @@ namespace cs296 {
         fd->shape = &magazineShape;
         magazine->CreateFixture(fd);
 
-        fd->filter.categoryBits = MAGAZINE;
-        fd->filter.maskBits = EVERYTHING;
 
 
         for (int i = 1; i < 7; ++i)
         {
-            dominos_t::createCartridge(x+5, y-height+3.5*i);
+            dominos_t::createCartridge(x+5, y-height+3.8*i-9.8, i);
         }
 
 
@@ -460,22 +473,22 @@ namespace cs296 {
 
 
         b2BodyDef followerBody;
-        followerBody.position.Set(x, y-height+2*wallWidth);
+        followerBody.position.Set(x, y-height+2*wallWidth-10);
         followerBody.type = b2_dynamicBody;
         follower = m_world->CreateBody(&followerBody);
 
         b2FixtureDef *followerFixture = new b2FixtureDef;
         b2PolygonShape shape;
-        shape.SetAsBox(5.5f, 0.5f, b2Vec2(width/2, 0), 0);
+        shape.SetAsBox(4.8f, 0.5f, b2Vec2(1+width/2, 0), 0);
         followerFixture->shape = &shape;
-        followerFixture->restitution = 1;
+        //followerFixture->restitution = 1;
         //followerFixture->density = 1;
         follower->CreateFixture(followerFixture);
 
         b2PrismaticJointDef prismaticJointDef;
         prismaticJointDef.bodyA = magazine;
         prismaticJointDef.bodyB = follower;
-        prismaticJointDef.collideConnected = false;
+        prismaticJointDef.collideConnected = true;
 
         prismaticJointDef.localAxisA.Set(0,1);
         prismaticJointDef.localAnchorA.Set(0, -15);
@@ -486,12 +499,16 @@ namespace cs296 {
         prismaticJointDef.upperTranslation = 29;
         
         prismaticJointDef.enableMotor = true;
-        prismaticJointDef.maxMotorForce = 200;
-        prismaticJointDef.motorSpeed = 150;
+        prismaticJointDef.maxMotorForce = 200000;
+        prismaticJointDef.motorSpeed = 20;
 
         (b2PrismaticJoint*)m_world->CreateJoint( &prismaticJointDef );
 
-
+		b2WeldJointDef jointDef;
+		jointDef.bodyA = fixed;
+		jointDef.bodyB = magazine;
+		jointDef.localAnchorA.Set(7.5,-12);
+		(b2WeldJoint*)m_world->CreateJoint(&jointDef);
 
 
         
@@ -499,11 +516,8 @@ namespace cs296 {
     }
 
 
-
-    /** 
-    * Connects the striker assembly and the spacer sleeve so that they can only move horizontal
-    */
     void dominos_t::connectStrikerAssemblyWithSpacerSleeve(b2Body* striker_assembly, b2Body* spacer_sleeve) {
+        // Connects the striker assembly and the spacer sleeve so that they can only move horizontal
         b2PrismaticJointDef prismaticJointDef;
         prismaticJointDef.collideConnected = true;
         prismaticJointDef.enableLimit = true;
@@ -558,36 +572,31 @@ namespace cs296 {
         (b2PrismaticJoint*) m_world->CreateJoint(&prismaticJointDef); ///slide and fixed
     }
 
-    /** Pulls trigger
-    * 
-    */
     void dominos_t::connectTriggerWithGround(b2Body* trigger, b2Body* ground) {
+        // Pulls trigger
         b2RevoluteJointDef jointDef;
-        jointDef.bodyA = trigger;
-        jointDef.bodyB = ground;
-
         jointDef.enableLimit = true;
         jointDef.lowerAngle = -0.55;
         //jointDef.upperAngle =  -100;
         jointDef.localAnchorA.Set(-4, -1);
-        jointDef.localAnchorB.Set(5, 38.25);
+        jointDef.localAnchorB.Set(5, 28.25);
 
+        jointDef.bodyA = trigger;
+        jointDef.bodyB = ground;
         (b2RevoluteJoint*) m_world->CreateJoint(&jointDef);
     }
 
-    /** Connects trigger and bar
-    *
-    */
     void dominos_t::connectTriggerWithBar(b2Body* trigger, b2Body* bar) {
+        //Connects trigger and bar
         b2RevoluteJointDef jointDef;
         jointDef.enableLimit = true;
         jointDef.lowerAngle = -0.55;
         //jointDef.upperAngle =  -100;
-        jointDef.bodyA = trigger;
-        jointDef.bodyB = bar;
         jointDef.localAnchorA.Set(-1, -6);
         jointDef.localAnchorB.Set(-10.75, -3);
 
+        jointDef.bodyA = trigger;
+        jointDef.bodyB = bar;
         (b2RevoluteJoint*) m_world->CreateJoint(&jointDef);
     }
     
@@ -600,12 +609,12 @@ namespace cs296 {
         //wheelJointDef.Initialize(trigger, bar, bar->GetWorldCenter(), *worldAxis);
         wheelJointDef.localAxisA = b2Vec2(2, -1);
         wheelJointDef.localAxisA.Normalize();
-        wheelJointDef.bodyA = ground;
-        wheelJointDef.bodyB = bar;
-        wheelJointDef.localAnchorA.Set(30, 39.25);
+        wheelJointDef.localAnchorA.Set(30, 29.25);
         wheelJointDef.localAnchorB.Set(11.25, 3);
         wheelJointDef.frequencyHz = 0;
 
+        wheelJointDef.bodyA = ground;
+        wheelJointDef.bodyB = bar;
         (b2WheelJoint*) m_world->CreateJoint(&wheelJointDef);
     }
 
@@ -616,7 +625,7 @@ namespace cs296 {
         weldJointDef.bodyB = spacer_sleeve;
         (b2WeldJoint*) m_world->CreateJoint(&weldJointDef); ///slide and spacer_sleeve
     }
-
+    
     void dominos_t::connectMagazine(b2Body* left, b2Body* bottom, b2Body* right) {
     }
 
@@ -664,11 +673,15 @@ namespace cs296 {
         int* b = (int*) (bodyUserDataB);
 
         if ((a != NULL) && (b != NULL)) { ///striker strikes casing
-            if (((*a == 1) && (*b == 2)) || ((*a == 2) && (*b == 1))) {
+            if (((*a == 1) && (*b == 0)) || ((*a == 0) && (*b == 1))) {
                 coll = true;
-            } else if (((*a == 3) && (*b == 2)) || ((*a == 2) && (*b == 3))) { ///casing hits casing_remover
+            } else if (((*a == 3) && (*b == 0)) || ((*a == 0) && (*b == 3))) { ///casing hits casing_remover
                 loll = true;
+                cout<<"dick"<<endl;
             }
+            
+            //if ((*a == 0) || (*b == 0)) cout<<"bsdkf"<<endl;
+      
         }
     }
 
