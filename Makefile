@@ -24,6 +24,7 @@ OBJDIR = $(PROJECT_ROOT)/myobjs
 BINDIR = $(PROJECT_ROOT)/mybins
 DOCDIR = $(PROJECT_ROOT)/doc
 LIBDIR = $(PROJECT_ROOT)/mylibs
+INSTALLDIR = ./../cs296project
 
 # Library Paths
 BOX2D_ROOT=$(EXTERNAL_ROOT)
@@ -61,9 +62,9 @@ INCS := $(wildcard $(SRCDIR)/*.hpp)
 OBJS := $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 LIBOBJS := $(OBJS:$(OBJDIR)/main.o=)
 
-.PHONY: all setup doc clean distclean exe exelib
+.PHONY: all setup doc clean distclean exe exelib report dist install
 
-all: setup
+all: exe
 
 setup:
 	@mkdir -p $(OBJDIR)
@@ -79,7 +80,7 @@ setup:
 	make install; \
 	fi;
 
-exe: $(OBJS)
+exe: setup $(OBJS)
 	@$(PRINTF) "$(MESG_COLOR)Building executable:$(NO_COLOR) $(FILE_COLOR) %16s$(NO_COLOR)" "$(notdir $@)"
 	$(CC) -o $(BINDIR)/$(TARGET) $(LDFLAGS) $(OBJS) $(LIBS) 2> temp.log || touch temp.err
 	@if test -e temp.err; \
@@ -133,7 +134,7 @@ doc:
 
 clean:
 	@$(ECHO) -n "Cleaning up..."
-	@$(RM) -rf $(OBJDIR) *~ $(DEPS) $(SRCDIR)/*~ $(BINDIR) $(LIBDIR)
+	@$(RM) -rf $(OBJDIR) *~ $(DEPS) $(SRCDIR)/*~ $(BINDIR) $(LIBDIR) $(DOCDIR)/html
 	@$(ECHO) "Done"
 
 distclean: clean
@@ -144,7 +145,21 @@ distclean: clean
 report: 
 	@cd doc; \
 	pdflatex cs296_report_19.tex; \
-	pdflatex cs296_report_19.tex; \
+	pdflatex cs296_report_19.tex;
 	bibtex cs296_report_19; \
 	pdflatex cs296_report_19.tex; \
 	pdflatex cs296_report_19.tex;
+
+dist: distclean
+	@tar -pczf ../cs296_g19_project.tar.gz .
+
+install: exe doc report
+	@mkdir -p $(INSTALLDIR)
+	@mkdir -p $(INSTALLDIR)/external
+	@mkdir -p $(INSTALLDIR)/bin
+	@mkdir -p $(INSTALLDIR)/doc
+	@cp -r $(EXTERNAL_ROOT)/include $(INSTALLDIR)/external/
+	@cp -r $(EXTERNAL_ROOT)/lib $(INSTALLDIR)/external/
+	@cp -r $(DOCDIR)/html $(DOCDIR)/*.pdf $(INSTALLDIR)/doc/
+	@cp -r $(BINDIR)/* $(INSTALLDIR)/bin/
+	@cp README $(INSTALLDIR)/
