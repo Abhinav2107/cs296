@@ -822,7 +822,6 @@ namespace cs296 {
                 coll = true;
             } else if (((*a == 3) && (*b == 0)) || ((*a == 0) && (*b == 3))) { ///casing hits casing_remover
                 loll = true;
-                cout<<"dick"<<endl;
             }
             
             //if ((*a == 0) || (*b == 0)) cout<<"bsdkf"<<endl;

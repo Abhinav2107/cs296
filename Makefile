@@ -35,7 +35,7 @@ GL_ROOT=/usr/include/
 LIBS = -lBox2D -lglui -lglut -lGLU -lGL
 
 # Compiler and Linker flags
-CPPFLAGS =-g -O3 -Wall -fno-strict-aliasing
+CPPFLAGS = -g -O3 -Wall -fno-strict-aliasing
 CPPFLAGS+=-I $(BOX2D_ROOT)/include -I $(GLUI_ROOT)/include
 LDFLAGS+=-L $(BOX2D_ROOT)/lib -L $(GLUI_ROOT)/lib
 
@@ -134,7 +134,7 @@ doc:
 
 clean:
 	@$(ECHO) -n "Cleaning up..."
-	@$(RM) -rf $(OBJDIR) *~ $(DEPS) $(SRCDIR)/*~ $(BINDIR) $(LIBDIR) $(DOCDIR)/html
+	@$(RM) -rf $(OBJDIR) *~ $(DEPS) $(SRCDIR)/*~ $(BINDIR) $(LIBDIR) $(DOCDIR)/html $(DOCDIR)/*.aux $(DOCDIR)/*.log $(DOCDIR)/*.pdf
 	@$(ECHO) "Done"
 
 distclean: clean
@@ -144,11 +144,12 @@ distclean: clean
 
 report: 
 	@cd doc; \
-	pdflatex cs296_report_19.tex; \
-	pdflatex cs296_report_19.tex;
-	bibtex cs296_report_19; \
-	pdflatex cs296_report_19.tex; \
-	pdflatex cs296_report_19.tex;
+	pdflatex report.tex; \
+	pdflatex report.tex; \
+	bibtex report; \
+	bibtex report; \
+	pdflatex report.tex; \
+	pdflatex report.tex;
 
 dist: distclean
 	@tar -pczf ../cs296_g19_project.tar.gz .
