@@ -118,6 +118,11 @@ namespace cs296
     case 'p':
       settings.pause = !settings.pause;
       break;
+
+      case 'f':
+      extern bool triggered;
+      triggered = true;
+      break;
       
       //! The default case. Why is this needed?
     default:

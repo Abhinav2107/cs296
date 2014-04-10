@@ -31,7 +31,8 @@ namespace cs296 {
     bool coll = false;
     bool loll = false;
     bool magnet = false;
-    //bool trig_reset = true;
+    bool trig_reset = true;
+    bool triggered = false;
 
     /**
     *
@@ -63,7 +64,7 @@ namespace cs296 {
         b2Body* new_bullet[7];
         b2Body* new_casing[7];
         
-        bool trig_reset;
+//        bool trig_reset;
         enum _entityCategory {
             EVERYTHING = 0x0001,
             SPRING = 0x0002,

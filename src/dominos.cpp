@@ -771,10 +771,10 @@ namespace cs296 {
             casing->ApplyLinearImpulse(b2Vec2(0, 100000), casing->GetWorldCenter(), true); ///removes empty casing during recoil
         }
         //cout<<striker_assembly->GetPosition().x - bar->GetPosition().x<<endl;
-        if ((trig_reset) && (striker_assembly->GetPosition().x - bar->GetPosition().x > 7)) {
-            //cout<<"dude"<<endl;
+        if (trig_reset || (striker_assembly->GetPosition().x - bar->GetPosition().x > 7)) {
+           // cout<<"dude"<<endl;
             trig_reset = false;
-            trigger->ApplyAngularImpulse(-15000, true); ///resets the position of trigger during recoil
+  //          trigger->ApplyAngularImpulse(-15000, true); ///resets the position of trigger during recoil
         }
         //cout<<new_bullet[6]->GetPosition().y - slide->GetPosition().y + 4.75<<endl;
         if (magnet && (new_casing[6]->GetPosition().y > slide->GetPosition().y - 3.75)) {
@@ -783,6 +783,17 @@ namespace cs296 {
             new_casing[6]->SetTransform(b2Vec2(0.25+slide->GetPosition().x+20.75,34+slide->GetPosition().y-37.5), 0);
             
         }
+
+            trigger->ApplyTorque(-13000, true); ///resets the position of trigger during recoil
+        double pos_dif = striker_assembly->GetPosition().x - bar->GetPosition().x;
+        if(triggered) {
+            trigger->ApplyTorque(100000, true); ///resets the position of trigger during recoil
+            if(pos_dif < -9) {
+               // trigger->ApplyTorque(15000000, true); ///resets the position of trigger during recoil
+                triggered = false;
+                }
+            }
+
 
         if (-21.25 + fixed->GetPosition().x - slide->GetPosition().x > 0.001) {
             slide->SetLinearVelocity(b2Vec2(0, 0));
