@@ -38,9 +38,10 @@ using namespace std;
 #include "dominos.hpp"
 
 namespace cs296 {
-
-    /** Constructor of our World
-     * Initializes all objects and joints
+	
+    /*! Constructor of our World.
+     * 
+     * This constructor initializes all objects and joints.
      */
     dominos_t::dominos_t() {
         m_world->SetContactListener(&myContactListenerInstance);
@@ -73,7 +74,9 @@ namespace cs296 {
 
         dominos_t::connectSlideWithSpacerSleeve(slide, spacer_sleeve);
     }
-
+	/**
+	 * Creates and returns the barrel of the gun. 
+	 */
     b2Body* dominos_t::createBarrel() {	
         b2PolygonShape polygonShape;
         polygonShape.SetAsBox(14, 0.5);
@@ -128,6 +131,10 @@ namespace cs296 {
         return barrel;
     }
 
+	/**
+	 * Creates and returns the bar of the striker. 
+	 */
+
     b2Body* dominos_t::createBar() {
         b2PolygonShape shape;
         shape.SetAsBox(12.0f, 0.75f, b2Vec2(0, 0), 0.25f);
@@ -156,6 +163,10 @@ namespace cs296 {
 
         return bar;
     }
+
+	/**
+	 * Creates and returns the slide of the gun. 
+	 */
 
     b2Body* dominos_t::createSlide() {
 		b2PolygonShape polygonShape;
@@ -207,6 +218,10 @@ namespace cs296 {
 		return slide;
     }
 
+	/**
+	 * Creates and returns the trigger of the gun. 
+	 */
+
     b2Body* dominos_t::createTrigger() {
 	    //b2Vec2 vertices[4];
 	    //vertices[0].Set(0,0);
@@ -234,6 +249,13 @@ namespace cs296 {
 	    return trigger;
     }
 
+	/**
+	 * Creates and returns the casing of the ith bullet at the given co-ordinates.
+	 * @param float x the x co-ordinate of the casing.
+	 * @param flaot y the y co-ordinate of the casing.
+	 * @param int i the index of the bullet whose casing needs to be created. 
+	 */
+
     b2Body* dominos_t::createCasing(float x, float y, int i) {
         b2PolygonShape shape;
         shape.SetAsBox(3.75, 1.9);
@@ -258,6 +280,13 @@ namespace cs296 {
         return new_casing[i];
     }
 
+	/**
+	 * Creates and returns the ith bullet at the given co-ordinates.
+	 * @param float x the x co-ordinate of the bullet.
+	 * @param flaot y the y co-ordinate of the bullet.
+	 * @param int i the index of the bullet which needs to be created. 
+	 */
+	
 	b2Body* dominos_t::createBullet(float x, float y, int i) {
         //b2PolygonShape shape;
         //shape.SetAsBox(1.0f, 0.5f);
@@ -286,6 +315,10 @@ namespace cs296 {
         return new_bullet[i];
     }
 
+	/**
+	 * Creates and returns the striker assembly. 
+	 */
+	
     b2Body* dominos_t::createStrikerAssembly() {
         b2PolygonShape shape;
         shape.SetAsBox(3.0f, 1.0f);
@@ -327,6 +360,10 @@ namespace cs296 {
         return striker_assembly;
     }
 
+	/**
+	 * Creates and returns the body corresponding to the fixed objects in the simulation. 
+	 */
+	
     b2Body* dominos_t::createFixed() {
         b2Vec2 vertices[4];
         vertices[0].Set(0, 0);
@@ -364,6 +401,10 @@ namespace cs296 {
         return fixed;
     }
 
+	/**
+	 * Creates and returns the cap of the gun. 
+	 */
+	
     b2Body* dominos_t::createCap() {
         b2PolygonShape shape;
         shape.SetAsBox(0.25f, 1.5f);
@@ -383,6 +424,10 @@ namespace cs296 {
         return cap;
     }
     
+    /**
+	 * Creates and returns the spacer sleeve of the striker assembly. 
+	 */
+	
     b2Body* dominos_t::createSpacerSleeve() {
         b2PolygonShape shape;
         shape.SetAsBox(6.0f, 1.5f);
@@ -399,6 +444,10 @@ namespace cs296 {
         return spacer_sleeve;
     }
 
+	/**
+	 * Creates and returns the ground in the simulation. 
+	 */
+	
     b2Body* dominos_t::createGround() {
         b2EdgeShape shape;
         shape.Set(b2Vec2(-90.0f, 0.0f), b2Vec2(90.0f, 0.0f));
@@ -416,6 +465,13 @@ namespace cs296 {
         return ground;
     }
     
+    /**
+	 * Creates and bullet-casing catridge by calling the createCasing and createBullet functions and returns the casing object.
+	 * @param float x the x co-ordinate of the catridge.
+	 * @param float y the y co-ordinate of the catridge.
+	 * @param int i the index of the bullet.
+	 */
+	
     b2Body* dominos_t::createCartridge(float x, float y, int i) {
         new_casing[i] = dominos_t::createCasing(x+1.3f, y, i);
         new_bullet[i] = dominos_t::createBullet(x-3.5f, y, i);
@@ -429,6 +485,9 @@ namespace cs296 {
         return new_casing[i];
     }
     
+    /**
+	 * Creates and returns the magazine of the gun by calling the createCatridge function multilpe times. 
+	 */
     b2Body* dominos_t::createMagazine() {
 
         float x = 8.0f;
@@ -515,7 +574,11 @@ namespace cs296 {
         return magazine;
     }
 
-
+	/**
+	 * Creates the joint for connecting the Striker Assembly and the Spacer Sleeve.
+	 * @param b2Body* striker_assembly the Striker Assembly Object.
+	 * @param b2Body* spacer_sleeve the Spacer Sleeve Object.
+	 */
     void dominos_t::connectStrikerAssemblyWithSpacerSleeve(b2Body* striker_assembly, b2Body* spacer_sleeve) {
         // Connects the striker assembly and the spacer sleeve so that they can only move horizontal
         b2PrismaticJointDef prismaticJointDef;
@@ -529,6 +592,12 @@ namespace cs296 {
         (b2PrismaticJoint*) m_world->CreateJoint(&prismaticJointDef);
     }
 
+	/**
+	 * Creates the joint for connecting the Striker Assembly and the Cap.
+	 * @param b2Body* striker_assembly the Striker Assembly Object.
+	 * @param b2Body* cap the Cap Object.
+	 */
+	
     void dominos_t::connectStrikerAssemblyWithCap(b2Body* striker_assembly, b2Body* cap) {
         b2PrismaticJointDef prismaticJointDef;
         prismaticJointDef.collideConnected = true;
@@ -541,6 +610,12 @@ namespace cs296 {
         (b2PrismaticJoint*) m_world->CreateJoint(&prismaticJointDef); ///striker_assembly and cap
     }
 
+	/**
+	 * Creates the joint for connecting the Spacer Sleeve and the Cap.
+	 * @param b2Body* spacer_sleeve the Spacer Sleeve Object.
+	 * @param b2Body* cap the Cap Object
+	 */
+	
     void dominos_t::connectSpacerSleeveWithCap(b2Body* spacer_sleeve, b2Body* cap) {
         b2PrismaticJointDef prismaticJointDef;
         prismaticJointDef.collideConnected = true;
@@ -557,6 +632,12 @@ namespace cs296 {
         (b2PrismaticJoint*) m_world->CreateJoint(&prismaticJointDef); ///cap and spacer_sleeve
     }
 
+	/**
+	 * Creates the joint for connecting the Slide and the Fixed objects.
+	 * @param b2Body* slide the Slide Object.
+	 * @param b2Body* fixed the Fixed Object
+	 */
+	
     void dominos_t::connectSlideWithFixed(b2Body* slide, b2Body* fixed) {
         b2PrismaticJointDef prismaticJointDef;
         prismaticJointDef.collideConnected = true;
@@ -572,6 +653,12 @@ namespace cs296 {
         (b2PrismaticJoint*) m_world->CreateJoint(&prismaticJointDef); ///slide and fixed
     }
 
+	/**
+	 * Creates the joint for connecting the Trigger and the Ground.
+	 * @param b2Body* trigger the Trigger Object.
+	 * @param b2Body* ground the Ground Object
+	 */
+	
     void dominos_t::connectTriggerWithGround(b2Body* trigger, b2Body* ground) {
         // Pulls trigger
         b2RevoluteJointDef jointDef;
@@ -586,6 +673,12 @@ namespace cs296 {
         (b2RevoluteJoint*) m_world->CreateJoint(&jointDef);
     }
 
+	/**
+	 * Creates the joint for connecting the Trigger and the Bar.
+	 * @param b2Body* trigger the Trigger Object.
+	 * @param b2Body* bar the Bar Object
+	 */
+	
     void dominos_t::connectTriggerWithBar(b2Body* trigger, b2Body* bar) {
         //Connects trigger and bar
         b2RevoluteJointDef jointDef;
@@ -599,7 +692,13 @@ namespace cs296 {
         jointDef.bodyB = bar;
         (b2RevoluteJoint*) m_world->CreateJoint(&jointDef);
     }
-    
+
+	/**
+	 * Creates the joint for connecting the Ground and the Bar.
+	 * @param b2Body* ground the Ground Object.
+	 * @param b2Body* bar the Bar Object
+	 */
+	    
     void dominos_t::connectGroundWithBar(b2Body* ground, b2Body* bar) {
         // Joint
         b2WheelJointDef wheelJointDef;
@@ -618,6 +717,12 @@ namespace cs296 {
         (b2WheelJoint*) m_world->CreateJoint(&wheelJointDef);
     }
 
+	/**
+	 * Creates the joint for connecting the Slide and the Spacer Sleeve.
+	 * @param b2Body* slide the Slide Object.
+	 * @param b2Body* spacer_sleeve the Spacer Sleeve Object
+	 */
+	
     void dominos_t::connectSlideWithSpacerSleeve(b2Body* slide, b2Body* spacer_sleeve) {
         b2WeldJointDef weldJointDef;
         weldJointDef.localAnchorA.Set(49.75, -3.5);
@@ -629,7 +734,11 @@ namespace cs296 {
     void dominos_t::connectMagazine(b2Body* left, b2Body* bottom, b2Body* right) {
     }
 
-
+	/**
+	 * The Step function which manipulates the positions  and velocitys based on certain conditions.
+	 * @param settings_t* settings The Settings of the simulation.
+	 */
+	
     void dominos_t::step(settings_t* settings) {
         base_sim_t::step(settings);
         if (coll) {
@@ -664,7 +773,11 @@ namespace cs296 {
         cap->ApplyForce(b2Vec2(1000 * (-14.75 + spacer_sleeve->GetPosition().x - cap->GetPosition().x), 0), cap->GetWorldCenter(), true); ///spring between cap and spacer_sleeve
     }
 
-
+	/**
+	 * The callback function for collision which takes certain actions depending on which bodies have collided.
+	 * @param b2Contact* contact the Contact Object contaning information about the current collision.
+	 */
+	
     void MyContactListener::BeginContact(b2Contact* contact) {
         //check if fixture A was a ball
         void* bodyUserDataA = contact->GetFixtureA()->GetBody()->GetUserData();
@@ -685,6 +798,6 @@ namespace cs296 {
         }
     }
 
-    // Startes finally the actual Simulation 
+    /// Startes finally the actual Simulation 
     sim_t *sim = new sim_t("Glock 23 Simulation", dominos_t::create);
 }
