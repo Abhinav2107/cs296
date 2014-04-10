@@ -53,8 +53,6 @@ namespace cs296 {
         b2Body* bar = dominos_t::createBar();
         b2Body* slide = dominos_t::createSlide();
         b2Body* trigger = dominos_t::createTrigger();
-        casing = dominos_t::createCasing();
-        bullet = dominos_t::createBullet();
         b2Body* striker_assembly = dominos_t::createStrikerAssembly();
         b2Body* fixed = dominos_t::createFixed();
         b2Body* cap = dominos_t::createCap();
@@ -66,13 +64,16 @@ namespace cs296 {
         dominos_t::connectStrikerAssemblyWithCap(striker_assembly, cap);
         dominos_t::connectSpacerSleeveWithCap(spacer_sleeve, cap);
         dominos_t::connectSlideWithFixed(slide, fixed);
-
         dominos_t::connectTriggerWithGround(trigger, ground);
         dominos_t::connectTriggerWithBar(trigger, bar);
-
         dominos_t::connectGroundWithBar(ground, bar);
-
         dominos_t::connectSlideWithSpacerSleeve(slide, spacer_sleeve);
+
+    /*    cartridge* c = */dominos_t::createCartridge(-1.0f, 34.0f, 0);
+//        casing[0] = c->casing;
+  //      bullet[0] = c->bullet;
+
+        current_cartridge = 0;
     }
 
     /**
@@ -292,23 +293,23 @@ namespace cs296 {
         b2BodyDef bd;
         bd.position.Set(x, y);
         bd.type = b2_dynamicBody;
-        new_casing[i] = m_world->CreateBody(&bd);
+        casing[i] = m_world->CreateBody(&bd);
         b2FixtureDef *fd = new b2FixtureDef;
         fd->filter.categoryBits = CARTRIDGE;
         fd->filter.maskBits = EVERYTHING | CARTRIDGE | MAGAZINE | COMPRES;
         fd->shape = &shape;
         fd->density = 10;
         //fd->restitution = 0;
-        new_casing[i]->CreateFixture(fd);
+        casing[i]->CreateFixture(fd);
         shape.SetAsBox(0.25, 1, b2Vec2(4.00, 0), 0);
         fd->shape = &shape;
-        new_casing[i]->CreateFixture(fd);
+        casing[i]->CreateFixture(fd);
         shape.SetAsBox(0.25, 1.9, b2Vec2(4.5, 0), 0);
         fd->shape = &shape;
-        new_casing[i]->CreateFixture(fd);
-        new_casing[i]->SetUserData(new int(i));
+        casing[i]->CreateFixture(fd);
+        casing[i]->SetUserData(new int(D_CASING));
 
-        return new_casing[i];
+        return casing[i];
     }
 	
 	/**
@@ -333,17 +334,17 @@ namespace cs296 {
         b2BodyDef bd;
         bd.position.Set(x, y);
         bd.type = b2_dynamicBody;
-        new_bullet[i] = m_world->CreateBody(&bd);
+        bullet[i] = m_world->CreateBody(&bd);
         b2FixtureDef *fd = new b2FixtureDef;
         fd->shape = &shape;
         //fd->restitution = 1;
         fd->filter.categoryBits = CARTRIDGE;
         fd->filter.maskBits = EVERYTHING | CARTRIDGE | MAGAZINE | COMPRES;
         fd->density = 1;
-        new_bullet[i]->CreateFixture(fd);
-        //new_bullet[i]->SetUserData(new int(i));
+        bullet[i]->CreateFixture(fd);
+        bullet[i]->SetUserData(new int(D_BULLET));
         
-        return new_bullet[i];
+        return bullet[i];
     }
 
     /**
@@ -364,7 +365,7 @@ namespace cs296 {
         vertices[0].Set(-3, -0.7);
         vertices[1].Set(-3, 0.3);
         vertices[2].Set(-4, 0.3);
-        vertices[3].Set(-5, -0.2);
+        vertices[3].Set(-4.5, -0.2);
         vertices[4].Set(-4, -0.7);
         b2PolygonShape polygonShape;
         polygonShape.Set(vertices, 5);
@@ -385,7 +386,7 @@ namespace cs296 {
         fd->shape = &shape;
         //fd->restitution = 1;
         striker_assembly->CreateFixture(fd); ///nose
-        striker_assembly->SetUserData(new int(1));
+        striker_assembly->SetUserData(new int(D_STRIKER));
 
         return striker_assembly;
     }
@@ -425,7 +426,7 @@ namespace cs296 {
         //fd->shape = &polygonShape;
         //fd->restitution = 1;
         //fixed->CreateFixture(fd); ///
-        fixed->SetUserData(new int(3));
+        fixed->SetUserData(new int(D_REMOVER));
 
         return fixed;
     }
@@ -496,17 +497,21 @@ namespace cs296 {
      * @param float y the y co-ordinate of the catridge.
      * @param int i the index of the bullet.
      */
-    b2Body* dominos_t::createCartridge(float x, float y, int i) {
-        new_casing[i] = dominos_t::createCasing(x+1.3f, y, i);
-        new_bullet[i] = dominos_t::createBullet(x-3.5f, y, i);
+    cartridge* dominos_t::createCartridge(float x, float y, int i) {
+        casing[i] = dominos_t::createCasing(x+1.3f, y, i);
+        bullet[i] = dominos_t::createBullet(x-3.5f, y, i);
         
         b2WeldJointDef jointDef;
-        jointDef.bodyA = new_casing[i];
-        jointDef.bodyB = new_bullet[i];
+        jointDef.bodyA = casing[i];
+        jointDef.bodyB = bullet[i];
         jointDef.localAnchorA.Set(-4.8,0);
         (b2WeldJoint*)m_world->CreateJoint(&jointDef);
         
-        return new_casing[i];
+        cartridge* c = new cartridge;
+        c->bullet = bullet[i];
+        c->casing = casing[i];
+
+        return c;
     }
     
     /**
@@ -547,7 +552,7 @@ namespace cs296 {
 
         for (int i = 1; i < 7; ++i)
         {
-            dominos_t::createCartridge(x+5, y-height+3.8*i-9.8, i);
+            dominos_t::createCartridge(x+5, y-height+3.8*(7-i)-9.8, i);
         }
 
 
@@ -762,13 +767,19 @@ namespace cs296 {
         base_sim_t::step(settings);
         if (coll) {
             coll = false;
-            bullet->ApplyLinearImpulse(b2Vec2(-5000000, 0), bullet->GetWorldCenter(), true);
-            casing->ApplyLinearImpulse(b2Vec2(30000, 0), casing->GetWorldCenter(), true);
+            bullet[current_cartridge]->ApplyLinearImpulse(b2Vec2(-5000000, 0), bullet[current_cartridge]->GetWorldCenter(), true);
+            casing[current_cartridge]->ApplyLinearImpulse(b2Vec2(30000, 0), casing[current_cartridge]->GetWorldCenter(), true);
             slide->ApplyLinearImpulse(b2Vec2(10000000, 0), slide->GetWorldCenter(), true); ///provides impulses to the bullet, casing and slide when striker contacts casing
+
+            b2JointEdge *jointEdge = bullet[current_cartridge]->GetJointList();
+            if(jointEdge != NULL && current_cartridge < 7) {
+                m_world->DestroyJoint(jointEdge->joint);
+                current_cartridge++;
+            }
         }
         else if (loll) {
             loll = false;
-            casing->ApplyLinearImpulse(b2Vec2(0, 100000), casing->GetWorldCenter(), true); ///removes empty casing during recoil
+      //      casing[current_cartridge]->ApplyLinearImpulse(b2Vec2(0, 100000), casing[current_cartridge]->GetWorldCenter(), true); ///removes empty casing during recoil
         }
         //cout<<striker_assembly->GetPosition().x - bar->GetPosition().x<<endl;
         if (trig_reset || (striker_assembly->GetPosition().x - bar->GetPosition().x > 7)) {
@@ -776,11 +787,11 @@ namespace cs296 {
             trig_reset = false;
   //          trigger->ApplyAngularImpulse(-15000, true); ///resets the position of trigger during recoil
         }
-        //cout<<new_bullet[6]->GetPosition().y - slide->GetPosition().y + 4.75<<endl;
-        if (magnet && (new_casing[6]->GetPosition().y > slide->GetPosition().y - 3.75)) {
+        //cout<<bullet[6]->GetPosition().y - slide->GetPosition().y + 4.75<<endl;
+        if (magnet && (casing[current_cartridge]->GetPosition().y > slide->GetPosition().y - 3.75)) {
             magnet = false;
-            new_casing[6]->SetLinearVelocity(b2Vec2(0,0));
-            new_casing[6]->SetTransform(b2Vec2(0.25+slide->GetPosition().x+20.75,34+slide->GetPosition().y-37.5), 0);
+            casing[current_cartridge]->SetLinearVelocity(b2Vec2(0,0));
+            casing[current_cartridge]->SetTransform(b2Vec2(0.25+slide->GetPosition().x+20.75,34+slide->GetPosition().y-37.5), 0);
             
         }
 
@@ -818,11 +829,12 @@ namespace cs296 {
         int* b = (int*) (bodyUserDataB);
 
         if ((a != NULL) && (b != NULL)) { ///striker strikes casing
-            if (((*a == 1) && (*b == 0)) || ((*a == 0) && (*b == 1))) {
+            if (((*a == D_STRIKER) && (*b == D_CASING)) || ((*a == D_CASING) && (*b == D_STRIKER))) {
                 coll = true;
-            } else if (((*a == 3) && (*b == 0)) || ((*a == 0) && (*b == 3))) { ///casing hits casing_remover
+                cout<<"casing"<<endl;
+            } else if (((*a == D_REMOVER) && (*b == D_CASING)) || ((*a == D_CASING) && (*b == D_REMOVER))) { ///casing hits casing_remover
                 loll = true;
-                cout<<"dick"<<endl;
+                cout<<"remover"<<endl;
             }
             
             //if ((*a == 0) || (*b == 0)) cout<<"bsdkf"<<endl;

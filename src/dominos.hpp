@@ -33,6 +33,10 @@ namespace cs296 {
     bool magnet = false;
     bool trig_reset = true;
     bool triggered = false;
+        int D_REMOVER = 0;
+        int D_CASING = 1;
+        int D_STRIKER = 2;
+        int D_BULLET = 3;
 
     /**
     *
@@ -41,6 +45,12 @@ namespace cs296 {
     class MyContactListener : public b2ContactListener {
     public:
         void BeginContact(b2Contact* contact);
+    };
+
+    class cartridge {
+    public:
+    	b2Body* bullet;
+    	b2Body* casing;
     };
 
     /** This is the class that sets up the Box2D simulation world
@@ -54,15 +64,14 @@ namespace cs296 {
         b2Body* slide;
         b2Body* fixed;
         b2Body* striker_assembly;
-        b2Body* bullet;
-        b2Body* casing;
         b2Body* barrel;
         b2Body* bar;
         b2Body* trigger;
         b2Body* magazine;
         b2Body* follower;
-        b2Body* new_bullet[7];
-        b2Body* new_casing[7];
+        b2Body* bullet[7];
+        b2Body* casing[7];
+        int current_cartridge;
         
 //        bool trig_reset;
         enum _entityCategory {
@@ -117,7 +126,9 @@ namespace cs296 {
     	b2Body* createCap();
     	b2Body* createSpacerSleeve();
     	b2Body* createMagazine();
-    	b2Body* createCartridge(float x, float y, int i);
+    	cartridge* createCartridge(float x, float y, int i);
+
+    	void fireBullet(b2Body*);
 
     	void connectStrikerAssemblyWithSpacerSleeve(b2Body* striker_assembly, b2Body* spacer_sleeve);
     	void connectStrikerAssemblyWithCap(b2Body* striker_assembly, b2Body* cap);
