@@ -85,7 +85,7 @@ namespace cs296 {
 	    * Extends the standard step-Function by...?
 	    */
         void step(settings_t* settings);
-        
+//        void keyboard(unsigned char key);
     	/**
     	*
     	*/
