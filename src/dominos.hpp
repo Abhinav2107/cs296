@@ -30,6 +30,7 @@ using namespace std;
 namespace cs296 {
     bool coll = false;
     bool loll = false;
+    bool magnet = false;
     //bool trig_reset = true;
 
     /**
@@ -84,7 +85,7 @@ namespace cs296 {
 	    * Extends the standard step-Function by...?
 	    */
         void step(settings_t* settings);
-        
+//        void keyboard(unsigned char key);
     	/**
     	*
     	*/

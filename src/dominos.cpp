@@ -38,7 +38,7 @@ using namespace std;
 #include "dominos.hpp"
 
 namespace cs296 {
-	
+
     /*! Constructor of our World.
      * 
      * This constructor initializes all objects and joints.
@@ -84,7 +84,7 @@ namespace cs296 {
         fd->shape = &polygonShape;
         //fd->filter.categoryBits = SPRING;
         //fd->filter.maskBits = EVERYTHING;
-        fd->density = 10;
+        fd->density = 20;
         b2BodyDef bd;
         bd.position.Set(-21.0f, 36.5f);
         bd.type = b2_dynamicBody;
@@ -119,22 +119,24 @@ namespace cs296 {
         polygonShape.Set(vertices, 4);
         fd->shape = &polygonShape;
         barrel->CreateFixture(fd); ///the hole where sliding_lock fits
-
-        vertices[0].Set(20, -4.5);
-        vertices[1].Set(24, -4.5);
-        vertices[2].Set(26, -6.5);
-        vertices[3].Set(22, -6.5);
-        polygonShape.Set(vertices, 4);
+		
+		b2Vec2 vertic[5];
+        vertic[0].Set(20, -4.5);
+        vertic[1].Set(23, -4.5);
+        vertic[2].Set(25, -5.5);
+        vertic[3].Set(26, -6.5);
+        vertic[4].Set(22, -6.5);
+        polygonShape.Set(vertic, 5);
         fd->shape = &polygonShape;
         barrel->CreateFixture(fd);
 
         return barrel;
     }
-
+    
 	/**
 	 * Creates and returns the bar of the striker. 
 	 */
-
+	
     b2Body* dominos_t::createBar() {
         b2PolygonShape shape;
         shape.SetAsBox(12.0f, 0.75f, b2Vec2(0, 0), 0.25f);
@@ -163,11 +165,11 @@ namespace cs296 {
 
         return bar;
     }
-
+    
 	/**
 	 * Creates and returns the slide of the gun. 
 	 */
-
+	
     b2Body* dominos_t::createSlide() {
 		b2PolygonShape polygonShape;
 		polygonShape.SetAsBox(13.75, 0.5);
@@ -175,7 +177,7 @@ namespace cs296 {
 		fd->shape = &polygonShape;
 		//fd->filter.categoryBits = SPRING;
 		//fd->filter.maskBits = EVERYTHING;
-		fd->density = 1000;
+		fd->density = 2000;
 		b2BodyDef bd;
 		bd.position.Set(-20.75f, 37.5f);
 		bd.type = b2_dynamicBody;
@@ -193,7 +195,7 @@ namespace cs296 {
 		polygonShape.SetAsBox(4.525, 1.5, b2Vec2(30.375, -1), 0);
 		fd->shape = &polygonShape;
 		slide->CreateFixture(fd); ///helps the barrel to slide back
-		polygonShape.SetAsBox(0.001, 0.43, b2Vec2(-13.75, -7), 0);
+		polygonShape.SetAsBox(0.001, 0.43, b2Vec2(-12.75, -7), 0);
 		slide->CreateFixture(fd); ///small part which helps the barrel to slide back
 		polygonShape.SetAsBox(0.5, 0.25, b2Vec2(26.35, -2.75), 0);
 		slide->CreateFixture(fd); ///to narrow the striker chamber at the front
@@ -211,17 +213,20 @@ namespace cs296 {
 		fd->filter.maskBits = EVERYTHING | NOCAP | SPRING | CARTRIDGE;
 		fd->density = 0;
 		slide->CreateFixture(fd); ///for pushing the new bullet in the mag, so that it springs up after some time (interface between magazine and other parts of the gun)
-		polygonShape.SetAsBox(5, 0.5, b2Vec2(36.875, -5.5), 0);
+		polygonShape.SetAsBox(5, 0.5, b2Vec2(36.875, -5.7), 0);
 		fd->shape = &polygonShape;
 		slide->CreateFixture(fd); ///same as above, keep new bullet down and then bring it up
-
+		
+		polygonShape.SetAsBox(0.5, 1.25, b2Vec2(26.35, -6.25), 0);
+		fd->shape = &polygonShape;
+		slide->CreateFixture(fd);
 		return slide;
     }
 
 	/**
 	 * Creates and returns the trigger of the gun. 
 	 */
-
+	
     b2Body* dominos_t::createTrigger() {
 	    //b2Vec2 vertices[4];
 	    //vertices[0].Set(0,0);
@@ -267,7 +272,8 @@ namespace cs296 {
         fd->filter.categoryBits = CARTRIDGE;
         fd->filter.maskBits = EVERYTHING | CARTRIDGE | MAGAZINE | COMPRES;
         fd->shape = &shape;
-        fd->density = 1;
+        fd->density = 10;
+        //fd->restitution = 0;
         new_casing[i]->CreateFixture(fd);
         shape.SetAsBox(0.25, 1, b2Vec2(4.00, 0), 0);
         fd->shape = &shape;
@@ -279,7 +285,7 @@ namespace cs296 {
 
         return new_casing[i];
     }
-
+	
 	/**
 	 * Creates and returns the ith bullet at the given co-ordinates.
 	 * @param float x the x co-ordinate of the bullet.
@@ -305,10 +311,10 @@ namespace cs296 {
         new_bullet[i] = m_world->CreateBody(&bd);
         b2FixtureDef *fd = new b2FixtureDef;
         fd->shape = &shape;
-        fd->restitution = 1;
+        //fd->restitution = 1;
         fd->filter.categoryBits = CARTRIDGE;
         fd->filter.maskBits = EVERYTHING | CARTRIDGE | MAGAZINE | COMPRES;
-        //fd->density = 1;
+        fd->density = 1;
         new_bullet[i]->CreateFixture(fd);
         //new_bullet[i]->SetUserData(new int(i));
 		
@@ -360,6 +366,7 @@ namespace cs296 {
         return striker_assembly;
     }
 
+
 	/**
 	 * Creates and returns the body corresponding to the fixed objects in the simulation. 
 	 */
@@ -386,7 +393,7 @@ namespace cs296 {
         polygonShape.SetAsBox(0.25f, 1.5f, b2Vec2(-4.75, -1.5), 0); ///right_spring_holder
         fd->shape = &polygonShape;
         fixed->CreateFixture(fd);
-        polygonShape.SetAsBox(1.0f, 0.001f, b2Vec2(20, 1.8), 0);
+        polygonShape.SetAsBox(1.0f, 0.001f, b2Vec2(19, 1.8), 0);
         fd->shape = &polygonShape;
         fd->restitution = 1;
         fd->filter.categoryBits = COMPRES;
@@ -423,11 +430,11 @@ namespace cs296 {
 
         return cap;
     }
-    
+      
     /**
 	 * Creates and returns the spacer sleeve of the striker assembly. 
 	 */
-	
+	  
     b2Body* dominos_t::createSpacerSleeve() {
         b2PolygonShape shape;
         shape.SetAsBox(6.0f, 1.5f);
@@ -471,7 +478,7 @@ namespace cs296 {
 	 * @param float y the y co-ordinate of the catridge.
 	 * @param int i the index of the bullet.
 	 */
-	
+	    
     b2Body* dominos_t::createCartridge(float x, float y, int i) {
         new_casing[i] = dominos_t::createCasing(x+1.3f, y, i);
         new_bullet[i] = dominos_t::createBullet(x-3.5f, y, i);
@@ -488,6 +495,7 @@ namespace cs296 {
     /**
 	 * Creates and returns the magazine of the gun by calling the createCatridge function multilpe times. 
 	 */
+	    
     b2Body* dominos_t::createMagazine() {
 
         float x = 8.0f;
@@ -511,7 +519,7 @@ namespace cs296 {
         fd->shape = &magazineShape;
         fd->density = 100;
         magazine->CreateFixture(fd);
-        magazineShape.SetAsBox(wallWidth, height+0.5f, b2Vec2(width+1.2, 0.5), 0);
+        magazineShape.SetAsBox(2*wallWidth, height+0.5f, b2Vec2(wallWidth+width+1.2, 0.5), 0);
         fd->shape = &magazineShape;
         magazine->CreateFixture(fd);
 
@@ -579,6 +587,7 @@ namespace cs296 {
 	 * @param b2Body* striker_assembly the Striker Assembly Object.
 	 * @param b2Body* spacer_sleeve the Spacer Sleeve Object.
 	 */
+	
     void dominos_t::connectStrikerAssemblyWithSpacerSleeve(b2Body* striker_assembly, b2Body* spacer_sleeve) {
         // Connects the striker assembly and the spacer sleeve so that they can only move horizontal
         b2PrismaticJointDef prismaticJointDef;
@@ -631,6 +640,7 @@ namespace cs296 {
         prismaticJointDef.lowerTranslation = -14.5; ///stop spring right before it reaches natural length
         (b2PrismaticJoint*) m_world->CreateJoint(&prismaticJointDef); ///cap and spacer_sleeve
     }
+
 
 	/**
 	 * Creates the joint for connecting the Slide and the Fixed objects.
@@ -698,7 +708,7 @@ namespace cs296 {
 	 * @param b2Body* ground the Ground Object.
 	 * @param b2Body* bar the Bar Object
 	 */
-	    
+	     
     void dominos_t::connectGroundWithBar(b2Body* ground, b2Body* bar) {
         // Joint
         b2WheelJointDef wheelJointDef;
@@ -717,12 +727,13 @@ namespace cs296 {
         (b2WheelJoint*) m_world->CreateJoint(&wheelJointDef);
     }
 
+
 	/**
 	 * Creates the joint for connecting the Slide and the Spacer Sleeve.
 	 * @param b2Body* slide the Slide Object.
 	 * @param b2Body* spacer_sleeve the Spacer Sleeve Object
 	 */
-	
+
     void dominos_t::connectSlideWithSpacerSleeve(b2Body* slide, b2Body* spacer_sleeve) {
         b2WeldJointDef weldJointDef;
         weldJointDef.localAnchorA.Set(49.75, -3.5);
@@ -744,12 +755,12 @@ namespace cs296 {
         if (coll) {
             coll = false;
             bullet->ApplyLinearImpulse(b2Vec2(-5000000, 0), bullet->GetWorldCenter(), true);
-            casing->ApplyLinearImpulse(b2Vec2(3000, 0), casing->GetWorldCenter(), true);
-            slide->ApplyLinearImpulse(b2Vec2(5000000, 0), slide->GetWorldCenter(), true); ///provides impulses to the bullet, casing and slide when striker contacts casing
+            casing->ApplyLinearImpulse(b2Vec2(30000, 0), casing->GetWorldCenter(), true);
+            slide->ApplyLinearImpulse(b2Vec2(10000000, 0), slide->GetWorldCenter(), true); ///provides impulses to the bullet, casing and slide when striker contacts casing
         }
         else if (loll) {
             loll = false;
-            casing->ApplyLinearImpulse(b2Vec2(0, 10000), casing->GetWorldCenter(), true); ///removes empty casing during recoil
+            casing->ApplyLinearImpulse(b2Vec2(0, 100000), casing->GetWorldCenter(), true); ///removes empty casing during recoil
         }
         //cout<<striker_assembly->GetPosition().x - bar->GetPosition().x<<endl;
         if ((trig_reset) && (striker_assembly->GetPosition().x - bar->GetPosition().x > 7)) {
@@ -757,16 +768,19 @@ namespace cs296 {
             trig_reset = false;
             trigger->ApplyAngularImpulse(-15000, true); ///resets the position of trigger during recoil
         }
-
-        //slidex = slide->GetPosition().x;
-        //fixedx = fixed->GetPosition().x;
-        //int slidev = slide->GetLinearVelocity().x;
+		//cout<<new_bullet[6]->GetPosition().y - slide->GetPosition().y + 4.75<<endl;
+        if (magnet && (new_casing[6]->GetPosition().y > slide->GetPosition().y - 3.75)) {
+			magnet = false;
+			new_casing[6]->SetLinearVelocity(b2Vec2(0,0));
+			new_casing[6]->SetTransform(b2Vec2(0.25+slide->GetPosition().x+20.75,34+slide->GetPosition().y-37.5), 0);
+			
+		}
 
         if (-21.25 + fixed->GetPosition().x - slide->GetPosition().x > 0.001) {
             slide->SetLinearVelocity(b2Vec2(0, 0));
             slide->SetTransform(b2Vec2(-21.25 + fixed->GetPosition().x, slide->GetPosition().y), 0); ///ensures that the spring between fixed and slide does not keep on oscillating
         }
-        slide->ApplyForce(b2Vec2(1000000 * (-21.25 + fixed->GetPosition().x - slide->GetPosition().x), 0), slide->GetWorldCenter(), true); ///spring between fixed and slide
+        slide->ApplyForce(b2Vec2(2000000 * (-21.25 + fixed->GetPosition().x - slide->GetPosition().x), 0), slide->GetWorldCenter(), true); ///spring between fixed and slide
         //fixed->ApplyForce(b2Vec2(1000000 * (21.25 + slide->GetPosition().x - fixed->GetPosition().x), 0), fixed->GetWorldCenter(), true);///spring between fixed and slide
 
         spacer_sleeve->ApplyForce(b2Vec2(1000 * (14.75 + cap->GetPosition().x - spacer_sleeve->GetPosition().x), 0), spacer_sleeve->GetWorldCenter(), true); ///spring between cap and spacer_sleeve
@@ -798,6 +812,6 @@ namespace cs296 {
         }
     }
 
-    /// Startes finally the actual Simulation 
+        /// Starts the actual simulation. 
     sim_t *sim = new sim_t("Glock 23 Simulation", dominos_t::create);
 }
