@@ -298,8 +298,7 @@ namespace cs296 {
         fd->filter.categoryBits = CARTRIDGE;
         fd->filter.maskBits = EVERYTHING | CARTRIDGE | MAGAZINE | COMPRES;
         fd->shape = &shape;
-        fd->density = 10;
-        //fd->restitution = 0;
+        fd->density = 5;
         casing[i]->CreateFixture(fd);
         shape.SetAsBox(0.25, 1, b2Vec2(4.00, 0), 0);
         fd->shape = &shape;
@@ -416,7 +415,7 @@ namespace cs296 {
         polygonShape.SetAsBox(0.25f, 1.5f, b2Vec2(-4.75, -1.5), 0); ///right_spring_holder
         fd->shape = &polygonShape;
         fixed->CreateFixture(fd);
-        polygonShape.SetAsBox(1.0f, 0.001f, b2Vec2(19, 1.8), 0);
+        polygonShape.SetAsBox(1.0f, 0.001f, b2Vec2(20, 1.8), 0);
         fd->shape = &polygonShape;
         fd->restitution = 1;
         fd->filter.categoryBits = COMPRES;
@@ -588,7 +587,7 @@ namespace cs296 {
         
         prismaticJointDef.enableMotor = true;
         prismaticJointDef.maxMotorForce = 200000;
-        prismaticJointDef.motorSpeed = 20;
+        prismaticJointDef.motorSpeed = 10;
 
         (b2PrismaticJoint*)m_world->CreateJoint( &prismaticJointDef );
 
@@ -774,12 +773,13 @@ namespace cs296 {
             b2JointEdge *jointEdge = bullet[current_cartridge]->GetJointList();
             if(jointEdge != NULL && current_cartridge < 7) {
                 m_world->DestroyJoint(jointEdge->joint);
-                current_cartridge++;
             }
         }
         else if (loll) {
             loll = false;
-      //      casing[current_cartridge]->ApplyLinearImpulse(b2Vec2(0, 100000), casing[current_cartridge]->GetWorldCenter(), true); ///removes empty casing during recoil
+          //  casing[current_cartridge]->ApplyLinearImpulse(b2Vec2(0, 100000), casing[current_cartridge]->GetWorldCenter(), true); ///removes empty casing during recoil
+        //    m_world->DestroyBody(casing[current_cartridge]);
+            current_cartridge++;
         }
         //cout<<striker_assembly->GetPosition().x - bar->GetPosition().x<<endl;
         if (trig_reset || (striker_assembly->GetPosition().x - bar->GetPosition().x > 7)) {
