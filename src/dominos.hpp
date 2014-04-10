@@ -30,6 +30,7 @@ using namespace std;
 namespace cs296 {
     bool coll = false;
     bool loll = false;
+    bool magnet = false;
     //bool trig_reset = true;
 
     /**
