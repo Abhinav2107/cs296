@@ -589,6 +589,7 @@ namespace cs296 {
         prismaticJointDef.maxMotorForce = 200000;
         prismaticJointDef.motorSpeed = 10;
 
+
         (b2PrismaticJoint*)m_world->CreateJoint( &prismaticJointDef );
 
         b2WeldJointDef jointDef;
